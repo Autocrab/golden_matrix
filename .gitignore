@@ -33,3 +33,6 @@ migrate_working_dir/
 
 # Claude Code
 .claude/
+
+# Internal docs
+docs/
