@@ -1,0 +1,137 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+/// Well-known system fonts that should not be namespaced with a package prefix.
+const _overridableFonts = [
+  'Roboto',
+  '.SF UI Display',
+  '.SF UI Text',
+  '.SF Pro Text',
+  '.SF Pro Display',
+];
+
+/// Loads all fonts declared in the app's pubspec.yaml and its dependencies.
+///
+/// Also loads the Roboto font from the Flutter SDK cache so that Material
+/// widgets render with real text instead of the default Ahem font.
+///
+/// Call this in `flutter_test_config.dart` before running golden tests:
+///
+/// ```dart
+/// // test/flutter_test_config.dart
+/// Future<void> testExecutable(FutureOr<void> Function() testMain) async {
+///   await loadAppFonts();
+///   return testMain();
+/// }
+/// ```
+Future<void> loadAppFonts() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Load fonts from FontManifest.json (app + dependency fonts)
+  final fontManifest = await rootBundle.loadStructuredData<Iterable<dynamic>>(
+    'FontManifest.json',
+    (string) async => json.decode(string) as Iterable<dynamic>,
+  );
+
+  final loadedFamilies = <String>{};
+
+  for (final dynamic font in fontManifest) {
+    final fontMap = font as Map<String, dynamic>;
+    final family = _derivedFontFamily(fontMap);
+    loadedFamilies.add(family);
+    final fontLoader = FontLoader(family);
+    for (final dynamic fontType in fontMap['fonts'] as Iterable<dynamic>) {
+      final fontTypeMap = fontType as Map<String, dynamic>;
+      fontLoader.addFont(rootBundle.load(fontTypeMap['asset'] as String));
+    }
+    await fontLoader.load();
+  }
+
+  // Load Roboto from Flutter SDK if not already loaded from the manifest
+  if (!loadedFamilies.contains('Roboto')) {
+    await _loadRobotoFromSdk();
+  }
+}
+
+/// Attempts to load the Roboto font from the Flutter SDK's cached artifacts.
+Future<void> _loadRobotoFromSdk() async {
+  final flutterRoot = _findFlutterRoot();
+  if (flutterRoot == null) return;
+
+  final robotoFile = File(
+    '$flutterRoot/bin/cache/artifacts/material_fonts/Roboto-Regular.ttf',
+  );
+
+  if (!robotoFile.existsSync()) return;
+
+  final fontLoader = FontLoader('Roboto');
+  final bytes = await robotoFile.readAsBytes();
+  fontLoader.addFont(Future.value(ByteData.view(bytes.buffer)));
+  await fontLoader.load();
+}
+
+/// Finds the Flutter SDK root by checking common indicators.
+String? _findFlutterRoot() {
+  // Check FLUTTER_ROOT environment variable
+  final envRoot = Platform.environment['FLUTTER_ROOT'];
+  if (envRoot != null && Directory(envRoot).existsSync()) {
+    return envRoot;
+  }
+
+  // Find flutter in PATH and resolve symlinks
+  final result = Process.runSync('which', ['flutter']);
+  if (result.exitCode == 0) {
+    final flutterBin = (result.stdout as String).trim();
+    try {
+      final resolved = File(flutterBin).resolveSymbolicLinksSync();
+      // resolved is something like /path/to/flutter/bin/flutter
+      final root = resolved.split('/bin/flutter').first;
+      if (Directory('$root/bin/cache').existsSync()) {
+        return root;
+      }
+    } catch (_) {
+      // Ignore resolution errors
+    }
+  }
+
+  return null;
+}
+
+/// Resolves the correct font family name, handling package namespacing.
+///
+/// Fonts from packages are prefixed with `packages/<package_name>/` in
+/// the asset path. This function detects that and applies the correct
+/// qualified name so Flutter can match the font at runtime.
+String _derivedFontFamily(Map<String, dynamic> fontDefinition) {
+  if (!fontDefinition.containsKey('family')) {
+    return '';
+  }
+
+  final fontFamily = fontDefinition['family'] as String;
+
+  if (_overridableFonts.contains(fontFamily)) {
+    return fontFamily;
+  }
+
+  if (fontFamily.startsWith('packages/')) {
+    final fontFamilyName = fontFamily.split('/').last;
+    if (_overridableFonts.any((font) => font == fontFamilyName)) {
+      return fontFamilyName;
+    }
+  } else {
+    final fonts = fontDefinition['fonts'] as Iterable<dynamic>;
+    for (final dynamic fontType in fonts) {
+      final fontTypeMap = fontType as Map<String, dynamic>;
+      final asset = fontTypeMap['asset'] as String?;
+      if (asset != null && asset.startsWith('packages')) {
+        final packageName = asset.split('/')[1];
+        return 'packages/$packageName/$fontFamily';
+      }
+    }
+  }
+
+  return fontFamily;
+}
