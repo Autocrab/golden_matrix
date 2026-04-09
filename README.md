@@ -44,13 +44,17 @@ matrixGolden(
 - **Declarative matrix** — define axes (themes, locales, devices, text scales, directions), get all combinations automatically
 - **Smart defaults** — `MatrixAxes()` with no arguments produces one valid test (light, en, 1.0x, phoneSmall)
 - **Direction inference** — Arabic, Hebrew, Farsi automatically get RTL; no manual setup
-- **Sampling strategies** — `full` (Cartesian product), `smoke` (minimal subset), `priorityBased` (high-value combos first)
+- **Sampling strategies** — `full`, `smoke`, `priorityBased`, `pairwise` (all-pairs coverage)
+- **Pairwise sampling** — covers all parameter pairs with minimal test cases (e.g. 270 → ~30)
 - **Presets** — `MatrixPreset.componentSmoke`, `componentFull`, `screenSmoke` for quick setup
 - **Exclude/include rules** — `MatrixRule.exclude(...)`, `MatrixRule.includeOnly(...)` with predicates
 - **Screen-level testing** — `screenMatrixGolden()` with full control via `appBuilder`
-- **6 device presets** — phoneSmall, phoneMedium, phoneLarge, androidSmall, androidMedium, tablet (+ named aliases: iphoneSE, iphone15, galaxyS20, etc.)
+- **Overflow detection** — captures `RenderFlex overflow` and layout errors as warnings in reports
+- **HTML reports** — self-contained HTML with thumbnails, scenario grouping, filters, dark mode
+- **Tolerance** — configurable pixel diff threshold for flaky-free CI
+- **Custom themes** — `MatrixTheme.data` for attaching arbitrary context (custom theme systems, brand config)
+- **7 device presets** — phoneSmall, phoneMedium, phoneLarge, androidSmall, androidMedium, tablet, tabletLandscape (+ named aliases)
 - **Font loading** — `loadAppFonts()` loads real fonts (Roboto + app fonts) instead of Ahem squares
-- **JSON reports** — `MatrixReportWriter` exports test results
 - **Zero external dependencies** — only Flutter SDK
 
 ## Quick Start
@@ -81,10 +85,8 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
 ### 3. Write your first matrix test
 
 ```dart
-// test/golden/my_widget_golden_test.dart
 import 'package:flutter/widgets.dart';
 import 'package:golden_matrix/golden_matrix.dart';
-import 'package:my_app/widgets/my_button.dart';
 
 void main() {
   matrixGolden(
@@ -101,16 +103,11 @@ void main() {
 }
 ```
 
-### 4. Generate baselines
+### 4. Generate baselines and run
 
 ```bash
-flutter test --update-goldens
-```
-
-### 5. Run regression tests
-
-```bash
-flutter test
+flutter test --update-goldens  # generate baselines
+flutter test                   # run regression tests
 ```
 
 ## API
@@ -164,22 +161,13 @@ screenMatrixGolden(
 
 ### Presets
 
-Skip the boilerplate — use built-in presets:
-
 ```dart
-// Quick smoke test: light/dark, 1 device, smoke sampling
 matrixGolden('Widget', scenarios: [...], preset: MatrixPreset.componentSmoke);
-
-// Full coverage: light/dark, en/ar, 1x/2x, phone/tablet
 matrixGolden('Widget', scenarios: [...], preset: MatrixPreset.componentFull);
-
-// Screen smoke: light/dark, en/ar, phone/tablet, smoke sampling
 screenMatrixGolden('Screen', appBuilder: ..., preset: MatrixPreset.screenSmoke);
 ```
 
 ### Sampling
-
-Control the matrix size:
 
 ```dart
 // Full Cartesian product (default)
@@ -187,6 +175,9 @@ matrixGolden('Widget', scenarios: [...], axes: axes);
 
 // Smoke: base combo + one delta per axis (~5 instead of 32)
 matrixGolden('Widget', scenarios: [...], axes: axes, sampling: MatrixSampling.smoke);
+
+// Pairwise: all parameter pairs covered (~12 instead of 36)
+matrixGolden('Widget', scenarios: [...], axes: axes, sampling: MatrixSampling.pairwise);
 
 // Priority-based: high-value combos first, capped at N
 matrixGolden('Widget', scenarios: [...], axes: axes,
@@ -196,66 +187,119 @@ matrixGolden('Widget', scenarios: [...], axes: axes,
 ### Rules
 
 ```dart
-// Exclude: remove specific combinations
 MatrixRule.exclude((c) => c.theme.name == 'dark' && c.textScale > 1.5)
-
-// Include only: keep only matching combinations
 MatrixRule.includeOnly((c) => c.device.name == 'phoneSmall' || c.device.name == 'tablet')
+```
+
+### Tolerance
+
+Allow small pixel differences for stable CI:
+
+```dart
+matrixGolden(
+  'Widget',
+  scenarios: [...],
+  axes: axes,
+  tolerance: 0.05 / 100, // 0.05% pixel diff allowed
+);
+```
+
+### Skip
+
+Conditionally skip tests (e.g. platform-specific golden files):
+
+```dart
+matrixGolden(
+  'Widget',
+  scenarios: [...],
+  axes: axes,
+  skip: !Platform.isMacOS,
+);
+```
+
+### Custom Wrapper
+
+Override the default `Scaffold(body: Center(child:))` layout:
+
+```dart
+matrixGolden(
+  'Widget',
+  scenarios: [...],
+  axes: axes,
+  wrapChild: (child) => child, // no Scaffold, no Center
+);
+```
+
+### Custom Theme Data
+
+Attach arbitrary context to themes — custom theme systems, brand configs, feature flags:
+
+```dart
+matrixGolden(
+  'Widget',
+  scenarios: [...],
+  axes: MatrixAxes(
+    themes: [
+      MatrixTheme.custom('light', ThemeData.light(), data: MyTheme.light()),
+      MatrixTheme.custom('dark', ThemeData.dark(), data: MyTheme.dark()),
+    ],
+  ),
+);
+
+// Access in screenMatrixGolden appBuilder:
+appBuilder: (combination) {
+  final myTheme = combination.theme.data as MyTheme;
+  return MyThemeProvider(theme: myTheme, child: MaterialApp(...));
+}
 ```
 
 ### Device Presets
 
 ```dart
 // Generic sizes
-MatrixDevice.phoneSmall    // 375x667, 2.0x (iPhone SE)
-MatrixDevice.phoneMedium   // 390x844, 3.0x (iPhone 15)
-MatrixDevice.phoneLarge    // 414x896, 3.0x (iPhone 15 Pro Max)
-MatrixDevice.androidSmall  // 360x800, 4.0x (Galaxy S20)
-MatrixDevice.androidMedium // 412x915, 2.625x (Galaxy A51)
-MatrixDevice.tablet        // 768x1024, 2.0x (iPad)
+MatrixDevice.phoneSmall      // 375x667, 2.0x (iPhone SE)
+MatrixDevice.phoneMedium     // 390x844, 3.0x (iPhone 15)
+MatrixDevice.phoneLarge      // 414x896, 3.0x (iPhone 15 Pro Max)
+MatrixDevice.androidSmall    // 360x800, 4.0x (Galaxy S20)
+MatrixDevice.androidMedium   // 412x915, 2.625x (Galaxy A51)
+MatrixDevice.tablet          // 768x1024, 2.0x (iPad)
 MatrixDevice.tabletLandscape // 1024x768, 2.0x
 
 // Named aliases
-MatrixDevice.iphoneSE      // = phoneSmall
-MatrixDevice.iphone15      // = phoneMedium
-MatrixDevice.galaxyS20     // = androidSmall
-MatrixDevice.galaxyA51     // = androidMedium
+MatrixDevice.iphoneSE        // = phoneSmall
+MatrixDevice.iphone15        // = phoneMedium
+MatrixDevice.galaxyS20       // = androidSmall
+MatrixDevice.galaxyA51       // = androidMedium
 
 // Custom
 MatrixDevice(name: 'pixel7', logicalSize: Size(412, 915), pixelRatio: 2.75)
 ```
 
+## Overflow Detection
+
+golden_matrix automatically captures `RenderFlex overflow` and layout errors during rendering. Warnings appear in JSON and HTML reports with orange badges — no configuration needed.
+
+## HTML Reports
+
+After tests run, golden_matrix generates self-contained HTML reports alongside golden files:
+- Summary with pass/fail/warning counts
+- Scenario grouping with collapsible sections
+- Thumbnail grid with clickable full-size images
+- Filter by scenario, theme, or status
+- Dark mode support via `prefers-color-scheme`
+
 ## Golden File Structure
 
 ```
-test/golden/goldens/
+goldens/
   default/
     light_en_ltr_1x_phonesmall.png
     dark_ar_rtl_2x_phonelarge.png
   disabled/
     light_en_ltr_1x_phonesmall.png
-  error/
-    dark_en_ltr_1x_tablet.png
 ```
 
-Naming format: `goldens/<scenario>/<theme>_<locale>_<direction>_<textScale>_<device>.png`
-
-## Custom Localization Delegates
-
-If your app uses custom localization, pass delegates to `matrixGolden`:
-
-```dart
-matrixGolden(
-  'MyWidget',
-  scenarios: [...],
-  axes: axes,
-  extraLocalizationsDelegates: [
-    AppLocalizations.delegate,
-  ],
-);
-```
-
-For `screenMatrixGolden`, configure delegates in your `appBuilder`.
+Naming: `goldens/<scenario>/<theme>_<locale>_<direction>_<textScale>_<device>.png`
 
 ## Requirements
 
