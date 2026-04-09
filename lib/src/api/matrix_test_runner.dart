@@ -39,7 +39,7 @@ void runMatrixTests(
   bool skip = false,
   double? tolerance,
 }) {
-  final combinations = _resolveCombinations(
+  final combinations = resolveCombinations(
     scenarios: scenarios,
     axes: axes,
     preset: preset,
@@ -49,7 +49,7 @@ void runMatrixTests(
     maxCombinations: maxCombinations,
   );
 
-  final byScenario = _groupByScenario(combinations);
+  final byScenario = groupByScenario(combinations);
 
   final List<MatrixCombinationResult> results = [];
   final stopwatch = Stopwatch()..start();
@@ -92,7 +92,8 @@ void runMatrixTests(
 
 // -- Config resolution --
 
-List<MatrixCombination> _resolveCombinations({
+@visibleForTesting
+List<MatrixCombination> resolveCombinations({
   required List<MatrixScenario> scenarios,
   MatrixAxes? axes,
   MatrixPreset? preset,
@@ -118,7 +119,8 @@ List<MatrixCombination> _resolveCombinations({
   );
 }
 
-Map<String, List<MatrixCombination>> _groupByScenario(List<MatrixCombination> combinations) {
+@visibleForTesting
+Map<String, List<MatrixCombination>> groupByScenario(List<MatrixCombination> combinations) {
   final grouped = <String, List<MatrixCombination>>{};
   for (final c in combinations) {
     (grouped[c.scenario.name] ??= []).add(c);
