@@ -35,6 +35,7 @@ void runMatrixTests(
   List<String>? tags,
   String Function(MatrixCombination)? fileNameBuilder,
   bool report = true,
+  String? reportDir,
 }) {
   // Resolve config from preset + explicit params
   final effectiveAxes = axes ?? preset?.axes ?? const MatrixAxes();
@@ -123,8 +124,8 @@ void runMatrixTests(
           results: combinationResults,
           duration: stopwatch.elapsed,
         );
-        await MatrixReportWriter.write(result);
-        await MatrixReportWriter.writeHtml(result);
+        await MatrixReportWriter.write(result, outputDir: reportDir);
+        await MatrixReportWriter.writeHtml(result, outputDir: reportDir);
       });
     }
   });

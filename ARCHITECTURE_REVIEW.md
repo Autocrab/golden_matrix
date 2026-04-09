@@ -888,11 +888,13 @@ Interpretation:
 
 **Resolution:** Added `wrapChild` callback parameter to `MatrixWidgetWrapper` and `matrixGolden()`. Default remains `Scaffold(body: Center(child: child))` for convenience. Users can override: `wrapChild: (child) => child` for no wrapping, or any custom layout.
 
-### 5. Report writer path heuristics
+### 5. ~~Report writer path heuristics~~ FIXED
 
-Why second:
-- brittle behavior
-- likely to become problematic with custom paths or repo structures
+~~Why second:~~
+- ~~brittle behavior~~
+- ~~likely to become problematic with custom paths or repo structures~~
+
+**Resolution:** Added `reportDir` parameter to `matrixGolden()`, `screenMatrixGolden()`, and `runMatrixTests()`, threaded through to `MatrixReportWriter.write(outputDir:)` / `.writeHtml(outputDir:)`. Filesystem scan (`_findGoldensDir`) retained as default fallback; explicit `reportDir` overrides it for non-standard project layouts.
 
 ### 6. `font_loader.dart` responsibility overload
 

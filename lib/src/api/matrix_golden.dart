@@ -41,6 +41,7 @@ void matrixGolden(
   List<LocalizationsDelegate<dynamic>> extraLocalizationsDelegates = const [],
   Widget Function(Widget child)? wrapChild,
   bool report = true,
+  String? reportDir,
 }) {
   runMatrixTests(
     'matrixGolden: $name',
@@ -59,5 +60,6 @@ void matrixGolden(
     tags: tags,
     fileNameBuilder: fileNameBuilder,
     report: report,
+    reportDir: reportDir,
   );
 }
