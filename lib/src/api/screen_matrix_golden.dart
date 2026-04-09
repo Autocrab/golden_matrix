@@ -46,6 +46,7 @@ void screenMatrixGolden(
   bool report = true,
   String? reportDir,
   bool skip = false,
+  double? tolerance,
 }) {
   final scenarios = states ?? [MatrixScenario('default', builder: () => const SizedBox.shrink())];
 
@@ -63,5 +64,6 @@ void screenMatrixGolden(
     report: report,
     reportDir: reportDir,
     skip: skip,
+    tolerance: tolerance,
   );
 }

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -38,6 +40,7 @@ void runMatrixTests(
   bool report = true,
   String? reportDir,
   bool skip = false,
+  double? tolerance,
 }) {
   // Resolve config from preset + explicit params
   final effectiveAxes = axes ?? preset?.axes ?? const MatrixAxes();
@@ -68,6 +71,24 @@ void runMatrixTests(
   final stopwatch = Stopwatch()..start();
 
   group(name, () {
+    GoldenFileComparator? originalComparator;
+
+    if (tolerance != null) {
+      setUp(() {
+        originalComparator = goldenFileComparator;
+        goldenFileComparator = _TolerantComparator(
+          goldenFileComparator as LocalFileComparator,
+          tolerance,
+        );
+      });
+
+      tearDown(() {
+        if (originalComparator != null) {
+          goldenFileComparator = originalComparator!;
+        }
+      });
+    }
+
     for (final entry in byScenario.entries) {
       group(entry.key, () {
         for (final combination in entry.value) {
@@ -141,4 +162,30 @@ void runMatrixTests(
 String _testDescription(MatrixCombination c) {
   final dir = c.direction == TextDirection.ltr ? 'ltr' : 'rtl';
   return '${c.theme.name} ${c.locale} $dir ${c.textScale}x ${c.device.name}';
+}
+
+/// A [LocalFileComparator] wrapper that allows a percentage of pixels to differ.
+class _TolerantComparator extends LocalFileComparator {
+  final double _tolerance;
+
+  _TolerantComparator(LocalFileComparator delegate, this._tolerance) : super(delegate.basedir);
+
+  @override
+  Future<bool> compare(Uint8List imageBytes, Uri golden) async {
+    final result = await GoldenFileComparator.compareLists(
+      imageBytes,
+      await getGoldenBytes(golden),
+    );
+
+    if (!result.passed && result.diffPercent <= _tolerance) {
+      return true;
+    }
+
+    if (!result.passed) {
+      final error = await generateFailureOutput(result, golden, basedir);
+      throw FlutterError(error);
+    }
+
+    return result.passed;
+  }
 }
