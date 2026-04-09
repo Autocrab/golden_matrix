@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core/slug.dart';
+
 /// Represents a theme configuration for matrix golden testing.
 ///
 /// Use [data] to attach arbitrary context (custom theme objects, feature
@@ -43,7 +45,7 @@ class MatrixTheme {
     return name == 'dark' ? ThemeData.dark() : ThemeData.light();
   }
 
-  String get slug => name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '_');
+  String get slug => slugify(name);
 
   @override
   String toString() => 'MatrixTheme($name)';

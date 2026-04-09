@@ -21,6 +21,13 @@ class MatrixGenerator {
     List<MatrixRule> rules = const [],
     int? maxCombinations,
   }) {
+    // 0. Validate inputs
+    assert(scenarios.isNotEmpty, 'scenarios must not be empty');
+    assert(axes.themes.isNotEmpty, 'axes.themes must not be empty');
+    assert(axes.locales.isNotEmpty, 'axes.locales must not be empty');
+    assert(axes.textScales.isNotEmpty, 'axes.textScales must not be empty');
+    assert(axes.devices.isNotEmpty, 'axes.devices must not be empty');
+
     // 1. Generate full Cartesian product
     var combinations = _generateCartesian(scenarios, axes);
 

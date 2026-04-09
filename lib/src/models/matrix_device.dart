@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import '../core/slug.dart';
+
 /// Represents a device configuration for matrix golden testing.
 class MatrixDevice {
   final String name;
@@ -73,7 +75,7 @@ class MatrixDevice {
     safeArea: EdgeInsets.only(top: 20),
   );
 
-  String get slug => name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '_');
+  String get slug => slugify(name);
 
   @override
   String toString() => 'MatrixDevice($name, ${logicalSize.width}x${logicalSize.height})';

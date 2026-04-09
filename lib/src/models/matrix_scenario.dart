@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import '../core/slug.dart';
+
 /// A builder function that creates a widget for a test scenario.
 typedef ScenarioBuilder = Widget Function();
 
@@ -11,7 +13,7 @@ class MatrixScenario {
 
   const MatrixScenario(this.name, {required this.builder, this.tags = const []});
 
-  String get slug => name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '_');
+  String get slug => slugify(name);
 
   @override
   String toString() => 'MatrixScenario($name)';

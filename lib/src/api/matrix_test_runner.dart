@@ -96,6 +96,17 @@ void runMatrixTests(
               ? fileNameBuilder(combination)
               : NamingStrategy.goldenPath(combination);
 
+          // Record skipped results for accurate reporting
+          if (skip && report) {
+            combinationResults.add(
+              MatrixCombinationResult(
+                combination: combination,
+                status: MatrixResultStatus.skipped,
+                goldenPath: goldenPath,
+              ),
+            );
+          }
+
           testWidgets(_testDescription(combination), skip: skip, (WidgetTester tester) async {
             PumpHelpers.configureView(tester, combination.device);
             final capture = ErrorCapture()..start();

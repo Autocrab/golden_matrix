@@ -3,6 +3,7 @@ import 'dart:io';
 
 import '../models/matrix_result.dart';
 import 'html_template.dart';
+import 'slug.dart';
 
 /// Writes [MatrixResult] as JSON and HTML report files.
 ///
@@ -55,5 +56,5 @@ class MatrixReportWriter {
     return 'goldens';
   }
 
-  static String _slug(String name) => name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '_');
+  static String _slug(String name) => slugify(name);
 }
