@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../core/matrix_generator.dart';
+import '../core/matrix_report_writer.dart';
 import '../core/naming_strategy.dart';
 import '../flutter/matrix_widget_wrapper.dart';
 import '../flutter/pump_helpers.dart';
 import '../models/matrix_axes.dart';
 import '../models/matrix_combination.dart';
 import '../models/matrix_preset.dart';
+import '../models/matrix_result.dart';
 import '../models/matrix_rule.dart';
 import '../models/matrix_sampling.dart';
 import '../models/matrix_scenario.dart';
@@ -18,20 +20,7 @@ import '../models/matrix_scenario.dart';
 /// The widget from each scenario is automatically wrapped in a [MaterialApp]
 /// shell with the appropriate theme, locale, direction, and text scale.
 ///
-/// Use [preset] for quick setup, or provide [axes] and [sampling] directly.
-/// If both [preset] and [axes] are provided, [axes] wins.
-///
-/// Example:
-/// ```dart
-/// matrixGolden(
-///   'PrimaryButton',
-///   scenarios: [
-///     MatrixScenario('default', builder: () => const PrimaryButton(label: 'OK')),
-///     MatrixScenario('disabled', builder: () => const PrimaryButton(label: 'OK', enabled: false)),
-///   ],
-///   preset: MatrixPreset.componentSmoke,
-/// );
-/// ```
+/// Set [report] to `false` to disable JSON/HTML report generation.
 void matrixGolden(
   String name, {
   required List<MatrixScenario> scenarios,
@@ -43,13 +32,13 @@ void matrixGolden(
   List<String>? tags,
   String Function(MatrixCombination)? fileNameBuilder,
   List<LocalizationsDelegate<dynamic>> extraLocalizationsDelegates = const [],
+  bool report = true,
 }) {
   final effectiveAxes = axes ?? preset?.axes ?? const MatrixAxes();
   final effectiveSampling =
       sampling ?? preset?.sampling ?? MatrixSampling.full;
   final effectiveRules = [...?preset?.rules, ...rules];
 
-  // Filter scenarios by tags
   final filteredScenarios = tags != null
       ? scenarios.where((s) => s.tags.any((t) => tags.contains(t))).toList()
       : scenarios;
@@ -62,11 +51,13 @@ void matrixGolden(
     maxCombinations: maxCombinations,
   );
 
-  // Group combinations by scenario for better output structure
   final byScenario = <String, List<MatrixCombination>>{};
   for (final c in combinations) {
     (byScenario[c.scenario.name] ??= []).add(c);
   }
+
+  final List<MatrixCombinationResult> combinationResults = [];
+  final stopwatch = Stopwatch()..start();
 
   group('matrixGolden: $name', () {
     for (final entry in byScenario.entries) {
@@ -90,15 +81,50 @@ void matrixGolden(
               await tester.pumpWidget(widget);
               await tester.pumpAndSettle();
 
-              await expectLater(
-                find.byType(MaterialApp),
-                matchesGoldenFile(goldenPath),
-              );
+              if (report) {
+                try {
+                  await expectLater(
+                    find.byType(MaterialApp),
+                    matchesGoldenFile(goldenPath),
+                  );
+                  combinationResults.add(MatrixCombinationResult(
+                    combination: combination,
+                    status: MatrixResultStatus.passed,
+                    goldenPath: goldenPath,
+                  ));
+                } catch (e) {
+                  combinationResults.add(MatrixCombinationResult(
+                    combination: combination,
+                    status: MatrixResultStatus.failed,
+                    goldenPath: goldenPath,
+                    errorMessage: e.toString(),
+                  ));
+                  rethrow;
+                }
+              } else {
+                await expectLater(
+                  find.byType(MaterialApp),
+                  matchesGoldenFile(goldenPath),
+                );
+              }
 
               PumpHelpers.resetView(tester);
             },
           );
         }
+      });
+    }
+
+    if (report) {
+      tearDownAll(() async {
+        stopwatch.stop();
+        final result = MatrixResult(
+          name: name,
+          results: combinationResults,
+          duration: stopwatch.elapsed,
+        );
+        await MatrixReportWriter.write(result);
+        await MatrixReportWriter.writeHtml(result);
       });
     }
   });
