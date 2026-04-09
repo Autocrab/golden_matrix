@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>matrixGolden: SampleCard — Golden Matrix Report</title>
+<title>matrixGolden: TightRow_OverflowDemo — Golden Matrix Report</title>
 <style>
 :root {
   --bg: #f8f9fa;
@@ -83,22 +83,21 @@ summary { cursor: pointer; font-size: 1.1rem; font-weight: 600; padding: 8px 0; 
 </head>
 <body>
 <header>
-<h1>matrixGolden: SampleCard</h1>
-<p class="meta">2026-04-09 15:32:10 &middot; 1s</p>
+<h1>matrixGolden: TightRow_OverflowDemo</h1>
+<p class="meta">2026-04-09 15:32:12 &middot; 3s</p>
 <div class="summary">
 <div class="stat"><span class="stat-value">4</span><span class="stat-label">Total</span></div>
 <div class="stat stat-passed"><span class="stat-value">4</span><span class="stat-label">Passed</span></div>
+<div class="stat stat-warning"><span class="stat-value">4</span><span class="stat-label">Warnings</span></div>
 </div>
 </header>
 <div class="filters">
 <label>Scenario <select id="filter-scenario" onchange="filterCards()">
 <option value="all">All</option>
-<option value="with_subtitle">with_subtitle</option>
-<option value="without_subtitle">without_subtitle</option>
+<option value="default">default</option>
 </select></label>
 <label>Theme <select id="filter-theme" onchange="filterCards()">
 <option value="all">All</option>
-<option value="dark">dark</option>
 <option value="light">light</option>
 </select></label>
 <label>Status <select id="filter-status" onchange="filterCards()">
@@ -106,17 +105,17 @@ summary { cursor: pointer; font-size: 1.1rem; font-weight: 600; padding: 8px 0; 
 <option value="passed">passed</option>
 </select></label>
 </div>
-<details open class="scenario-section" data-scenario="with_subtitle">
+<details open class="scenario-section" data-scenario="default">
 <summary>
-<span class="scenario-name">with_subtitle</span>
-<span class="scenario-count">2 tests
+<span class="scenario-name">default</span>
+<span class="scenario-count">4 tests
  &middot; <span class="text-pass">all passed</span>
 </span>
 </summary>
 <div class="grid">
-<div class="card" data-scenario="with_subtitle" data-theme="light" data-status="passed">
-<a href="with_subtitle/light_en_ltr_1x_phonesmall.png" target="_blank">
-<img src="with_subtitle/light_en_ltr_1x_phonesmall.png" loading="lazy" alt="with_subtitle" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<div class="card" data-scenario="default" data-theme="light" data-status="passed">
+<a href="default/light_en_ltr_1x_phonesmall.png" target="_blank">
+<img src="default/light_en_ltr_1x_phonesmall.png" loading="lazy" alt="default" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
 <div class="img-placeholder" style="display:none">No image</div>
 </a>
 <div class="card-meta">
@@ -127,34 +126,11 @@ summary { cursor: pointer; font-size: 1.1rem; font-weight: 600; padding: 8px 0; 
 <span class="tag">1x</span>
 <span class="tag">phoneSmall</span>
 </div>
+<div class="warning">A RenderFlex overflowed by 190 pixels on the right.</div>
 </div>
-<div class="card" data-scenario="with_subtitle" data-theme="dark" data-status="passed">
-<a href="with_subtitle/dark_en_ltr_1x_phonesmall.png" target="_blank">
-<img src="with_subtitle/dark_en_ltr_1x_phonesmall.png" loading="lazy" alt="with_subtitle" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-<div class="img-placeholder" style="display:none">No image</div>
-</a>
-<div class="card-meta">
-<span class="badge-passed">passed</span>
-<span class="tag">dark</span>
-<span class="tag">en</span>
-<span class="tag">ltr</span>
-<span class="tag">1x</span>
-<span class="tag">phoneSmall</span>
-</div>
-</div>
-</div>
-</details>
-<details open class="scenario-section" data-scenario="without_subtitle">
-<summary>
-<span class="scenario-name">without_subtitle</span>
-<span class="scenario-count">2 tests
- &middot; <span class="text-pass">all passed</span>
-</span>
-</summary>
-<div class="grid">
-<div class="card" data-scenario="without_subtitle" data-theme="light" data-status="passed">
-<a href="without_subtitle/light_en_ltr_1x_phonesmall.png" target="_blank">
-<img src="without_subtitle/light_en_ltr_1x_phonesmall.png" loading="lazy" alt="without_subtitle" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<div class="card" data-scenario="default" data-theme="light" data-status="passed">
+<a href="default/light_en_ltr_1x_phonelarge.png" target="_blank">
+<img src="default/light_en_ltr_1x_phonelarge.png" loading="lazy" alt="default" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
 <div class="img-placeholder" style="display:none">No image</div>
 </a>
 <div class="card-meta">
@@ -163,22 +139,39 @@ summary { cursor: pointer; font-size: 1.1rem; font-weight: 600; padding: 8px 0; 
 <span class="tag">en</span>
 <span class="tag">ltr</span>
 <span class="tag">1x</span>
-<span class="tag">phoneSmall</span>
+<span class="tag">phoneLarge</span>
 </div>
+<div class="warning">A RenderFlex overflowed by 151 pixels on the right.</div>
 </div>
-<div class="card" data-scenario="without_subtitle" data-theme="dark" data-status="passed">
-<a href="without_subtitle/dark_en_ltr_1x_phonesmall.png" target="_blank">
-<img src="without_subtitle/dark_en_ltr_1x_phonesmall.png" loading="lazy" alt="without_subtitle" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<div class="card" data-scenario="default" data-theme="light" data-status="passed">
+<a href="default/light_en_ltr_2x_phonesmall.png" target="_blank">
+<img src="default/light_en_ltr_2x_phonesmall.png" loading="lazy" alt="default" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
 <div class="img-placeholder" style="display:none">No image</div>
 </a>
 <div class="card-meta">
 <span class="badge-passed">passed</span>
-<span class="tag">dark</span>
+<span class="tag">light</span>
 <span class="tag">en</span>
 <span class="tag">ltr</span>
-<span class="tag">1x</span>
+<span class="tag">2x</span>
 <span class="tag">phoneSmall</span>
 </div>
+<div class="warning">A RenderFlex overflowed by 613 pixels on the right.</div>
+</div>
+<div class="card" data-scenario="default" data-theme="light" data-status="passed">
+<a href="default/light_en_ltr_2x_phonelarge.png" target="_blank">
+<img src="default/light_en_ltr_2x_phonelarge.png" loading="lazy" alt="default" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+<div class="img-placeholder" style="display:none">No image</div>
+</a>
+<div class="card-meta">
+<span class="badge-passed">passed</span>
+<span class="tag">light</span>
+<span class="tag">en</span>
+<span class="tag">ltr</span>
+<span class="tag">2x</span>
+<span class="tag">phoneLarge</span>
+</div>
+<div class="warning">A RenderFlex overflowed by 574 pixels on the right.</div>
 </div>
 </div>
 </details>

@@ -1,11 +1,12 @@
 {
   "name": "matrixGolden: SampleButton_WithRules",
-  "timestamp": "2026-04-09T14:33:33.136418",
-  "durationMs": 2802,
+  "timestamp": "2026-04-09T15:32:12.623424",
+  "durationMs": 2952,
   "total": 6,
   "passed": 6,
   "failed": 0,
   "skipped": 0,
+  "warnings": 0,
   "results": [
     {
       "scenario": "default",

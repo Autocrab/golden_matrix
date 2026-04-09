@@ -1,11 +1,12 @@
 {
   "name": "matrixGolden: SampleCard",
-  "timestamp": "2026-04-09T14:33:31.532570",
-  "durationMs": 1201,
+  "timestamp": "2026-04-09T15:32:10.914776",
+  "durationMs": 1246,
   "total": 4,
   "passed": 4,
   "failed": 0,
   "skipped": 0,
+  "warnings": 0,
   "results": [
     {
       "scenario": "with_subtitle",

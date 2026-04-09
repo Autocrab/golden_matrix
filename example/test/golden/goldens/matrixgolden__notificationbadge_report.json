@@ -1,11 +1,12 @@
 {
   "name": "matrixGolden: NotificationBadge",
-  "timestamp": "2026-04-09T14:33:32.548608",
-  "durationMs": 2216,
+  "timestamp": "2026-04-09T15:32:11.991858",
+  "durationMs": 2323,
   "total": 48,
   "passed": 48,
   "failed": 0,
   "skipped": 0,
+  "warnings": 0,
   "results": [
     {
       "scenario": "info",

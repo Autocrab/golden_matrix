@@ -4,3 +4,4 @@ export 'widgets/user_avatar.dart';
 export 'widgets/notification_badge.dart';
 export 'screens/login_screen.dart';
 export 'screens/profile_screen.dart';
+export 'widgets/tight_row.dart';

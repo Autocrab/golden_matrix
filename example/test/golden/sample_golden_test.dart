@@ -8,6 +8,7 @@ import 'package:golden_matrix_example/widgets/user_avatar.dart';
 import 'package:golden_matrix_example/widgets/notification_badge.dart';
 import 'package:golden_matrix_example/screens/login_screen.dart';
 import 'package:golden_matrix_example/screens/profile_screen.dart';
+import 'package:golden_matrix_example/widgets/tight_row.dart';
 
 void main() {
   // ---------------------------------------------------------------------------
@@ -183,5 +184,18 @@ void main() {
       // Don't test RTL with English — only Arabic is RTL
       MatrixRule.exclude((c) => c.locale.languageCode != 'ar' && c.direction == TextDirection.rtl),
     ],
+  );
+
+  // ---------------------------------------------------------------------------
+  // 8. Overflow detection demo — TightRow overflows on small devices + large text
+  // ---------------------------------------------------------------------------
+  matrixGolden(
+    'TightRow_OverflowDemo',
+    scenarios: [MatrixScenario('default', builder: () => const TightRow())],
+    axes: MatrixAxes(
+      themes: const [MatrixTheme.light],
+      textScales: const [1.0, 2.0],
+      devices: const [MatrixDevice.phoneSmall, MatrixDevice.phoneLarge],
+    ),
   );
 }

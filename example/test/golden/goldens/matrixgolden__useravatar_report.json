@@ -1,11 +1,12 @@
 {
   "name": "matrixGolden: UserAvatar",
-  "timestamp": "2026-04-09T14:33:31.721216",
-  "durationMs": 1389,
+  "timestamp": "2026-04-09T15:32:11.107259",
+  "durationMs": 1438,
   "total": 12,
   "passed": 12,
   "failed": 0,
   "skipped": 0,
+  "warnings": 0,
   "results": [
     {
       "scenario": "small_offline",

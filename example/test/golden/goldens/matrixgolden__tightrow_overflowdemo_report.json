@@ -1,0 +1,64 @@
+{
+  "name": "matrixGolden: TightRow_OverflowDemo",
+  "timestamp": "2026-04-09T15:32:12.715452",
+  "durationMs": 3044,
+  "total": 4,
+  "passed": 4,
+  "failed": 0,
+  "skipped": 0,
+  "warnings": 4,
+  "results": [
+    {
+      "scenario": "default",
+      "theme": "light",
+      "locale": "en",
+      "textScale": 1.0,
+      "device": "phoneSmall",
+      "direction": "ltr",
+      "status": "passed",
+      "goldenPath": "goldens/default/light_en_ltr_1x_phonesmall.png",
+      "warnings": [
+        "A RenderFlex overflowed by 190 pixels on the right."
+      ]
+    },
+    {
+      "scenario": "default",
+      "theme": "light",
+      "locale": "en",
+      "textScale": 1.0,
+      "device": "phoneLarge",
+      "direction": "ltr",
+      "status": "passed",
+      "goldenPath": "goldens/default/light_en_ltr_1x_phonelarge.png",
+      "warnings": [
+        "A RenderFlex overflowed by 151 pixels on the right."
+      ]
+    },
+    {
+      "scenario": "default",
+      "theme": "light",
+      "locale": "en",
+      "textScale": 2.0,
+      "device": "phoneSmall",
+      "direction": "ltr",
+      "status": "passed",
+      "goldenPath": "goldens/default/light_en_ltr_2x_phonesmall.png",
+      "warnings": [
+        "A RenderFlex overflowed by 613 pixels on the right."
+      ]
+    },
+    {
+      "scenario": "default",
+      "theme": "light",
+      "locale": "en",
+      "textScale": 2.0,
+      "device": "phoneLarge",
+      "direction": "ltr",
+      "status": "passed",
+      "goldenPath": "goldens/default/light_en_ltr_2x_phonelarge.png",
+      "warnings": [
+        "A RenderFlex overflowed by 574 pixels on the right."
+      ]
+    }
+  ]
+}
