@@ -37,6 +37,7 @@ void runMatrixTests(
   String Function(MatrixCombination)? fileNameBuilder,
   bool report = true,
   String? reportDir,
+  bool skip = false,
 }) {
   // Resolve config from preset + explicit params
   final effectiveAxes = axes ?? preset?.axes ?? const MatrixAxes();
@@ -74,7 +75,7 @@ void runMatrixTests(
               ? fileNameBuilder(combination)
               : NamingStrategy.goldenPath(combination);
 
-          testWidgets(_testDescription(combination), (WidgetTester tester) async {
+          testWidgets(_testDescription(combination), skip: skip, (WidgetTester tester) async {
             PumpHelpers.configureView(tester, combination.device);
             final capture = ErrorCapture()..start();
             try {

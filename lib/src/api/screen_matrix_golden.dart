@@ -45,6 +45,7 @@ void screenMatrixGolden(
   String Function(MatrixCombination)? fileNameBuilder,
   bool report = true,
   String? reportDir,
+  bool skip = false,
 }) {
   final scenarios = states ?? [MatrixScenario('default', builder: () => const SizedBox.shrink())];
 
@@ -61,5 +62,6 @@ void screenMatrixGolden(
     fileNameBuilder: fileNameBuilder,
     report: report,
     reportDir: reportDir,
+    skip: skip,
   );
 }

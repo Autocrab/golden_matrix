@@ -42,6 +42,7 @@ void matrixGolden(
   Widget Function(Widget child)? wrapChild,
   bool report = true,
   String? reportDir,
+  bool skip = false,
 }) {
   runMatrixTests(
     'matrixGolden: $name',
@@ -61,5 +62,6 @@ void matrixGolden(
     fileNameBuilder: fileNameBuilder,
     report: report,
     reportDir: reportDir,
+    skip: skip,
   );
 }
