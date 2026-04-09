@@ -77,6 +77,20 @@ void main() {
       expect(MatrixTheme.dark.resolve().brightness, Brightness.dark);
     });
 
+    test('data is null by default', () {
+      expect(MatrixTheme.light.data, isNull);
+      expect(MatrixTheme.dark.data, isNull);
+      final custom = MatrixTheme.custom('brand', ThemeData.light());
+      expect(custom.data, isNull);
+    });
+
+    test('data stores arbitrary object', () {
+      final config = {'primary': 'red', 'accent': 'blue'};
+      final theme = MatrixTheme.custom('brand', ThemeData.light(), data: config);
+      expect(theme.data, config);
+      expect((theme.data as Map)['primary'], 'red');
+    });
+
     test('slug is sanitized', () {
       final theme = MatrixTheme.custom('My Theme!', ThemeData.light());
       expect(theme.slug, 'my_theme_');
