@@ -1,0 +1,91 @@
+{
+  "name": "screenMatrixGolden: ProfileScreen",
+  "timestamp": "2026-04-09T14:33:33.054764",
+  "durationMs": 2721,
+  "total": 8,
+  "passed": 8,
+  "failed": 0,
+  "skipped": 0,
+  "results": [
+    {
+      "scenario": "own_profile",
+      "theme": "dark",
+      "locale": "en",
+      "textScale": 1.5,
+      "device": "phoneSmall",
+      "direction": "ltr",
+      "status": "passed",
+      "goldenPath": "goldens/own_profile/dark_en_ltr_1_5x_phonesmall.png"
+    },
+    {
+      "scenario": "own_profile",
+      "theme": "dark",
+      "locale": "en",
+      "textScale": 1.5,
+      "device": "phoneLarge",
+      "direction": "ltr",
+      "status": "passed",
+      "goldenPath": "goldens/own_profile/dark_en_ltr_1_5x_phonelarge.png"
+    },
+    {
+      "scenario": "own_profile",
+      "theme": "dark",
+      "locale": "en",
+      "textScale": 1.5,
+      "device": "tablet",
+      "direction": "ltr",
+      "status": "passed",
+      "goldenPath": "goldens/own_profile/dark_en_ltr_1_5x_tablet.png"
+    },
+    {
+      "scenario": "own_profile",
+      "theme": "light",
+      "locale": "en",
+      "textScale": 1.5,
+      "device": "phoneSmall",
+      "direction": "ltr",
+      "status": "passed",
+      "goldenPath": "goldens/own_profile/light_en_ltr_1_5x_phonesmall.png"
+    },
+    {
+      "scenario": "own_profile",
+      "theme": "light",
+      "locale": "en",
+      "textScale": 1.5,
+      "device": "phoneLarge",
+      "direction": "ltr",
+      "status": "passed",
+      "goldenPath": "goldens/own_profile/light_en_ltr_1_5x_phonelarge.png"
+    },
+    {
+      "scenario": "other_profile",
+      "theme": "dark",
+      "locale": "en",
+      "textScale": 1.5,
+      "device": "phoneSmall",
+      "direction": "ltr",
+      "status": "passed",
+      "goldenPath": "goldens/other_profile/dark_en_ltr_1_5x_phonesmall.png"
+    },
+    {
+      "scenario": "other_profile",
+      "theme": "dark",
+      "locale": "en",
+      "textScale": 1.5,
+      "device": "phoneLarge",
+      "direction": "ltr",
+      "status": "passed",
+      "goldenPath": "goldens/other_profile/dark_en_ltr_1_5x_phonelarge.png"
+    },
+    {
+      "scenario": "other_profile",
+      "theme": "dark",
+      "locale": "en",
+      "textScale": 1.5,
+      "device": "tablet",
+      "direction": "ltr",
+      "status": "passed",
+      "goldenPath": "goldens/other_profile/dark_en_ltr_1_5x_tablet.png"
+    }
+  ]
+}

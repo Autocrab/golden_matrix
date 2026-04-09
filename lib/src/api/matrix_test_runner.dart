@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../core/matrix_generator.dart';
@@ -15,6 +15,9 @@ import '../models/matrix_scenario.dart';
 
 /// Builds a widget tree for a given [MatrixCombination].
 typedef MatrixWidgetBuilder = Widget Function(MatrixCombination combination);
+
+/// Key used for the [RepaintBoundary] that wraps the golden capture target.
+const _goldenBoundaryKey = ValueKey('__golden_matrix_boundary__');
 
 /// Internal test runner shared by [matrixGolden] and [screenMatrixGolden].
 ///
@@ -75,7 +78,10 @@ void runMatrixTests(
             (WidgetTester tester) async {
               PumpHelpers.configureView(tester, combination.device);
               try {
-                final widget = widgetBuilder(combination);
+                final widget = RepaintBoundary(
+                  key: _goldenBoundaryKey,
+                  child: widgetBuilder(combination),
+                );
 
                 await tester.pumpWidget(widget);
                 await tester.pumpAndSettle();
@@ -83,7 +89,7 @@ void runMatrixTests(
                 if (report) {
                   try {
                     await expectLater(
-                      find.byType(MaterialApp),
+                      find.byKey(_goldenBoundaryKey),
                       matchesGoldenFile(goldenPath),
                     );
                     combinationResults.add(MatrixCombinationResult(
@@ -102,7 +108,7 @@ void runMatrixTests(
                   }
                 } else {
                   await expectLater(
-                    find.byType(MaterialApp),
+                    find.byKey(_goldenBoundaryKey),
                     matchesGoldenFile(goldenPath),
                   );
                 }

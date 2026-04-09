@@ -852,12 +852,14 @@ Interpretation:
 
 ## Priority 1
 
-### 1. MaterialApp coupling in generic-looking APIs
+### 1. ~~MaterialApp coupling in generic-looking APIs~~ FIXED
 
-Why first:
-- user-visible abstraction mismatch
-- blocks extensibility
-- likely to surprise consumers
+~~Why first:~~
+- ~~user-visible abstraction mismatch~~
+- ~~blocks extensibility~~
+- ~~likely to surprise consumers~~
+
+**Resolution:** Replaced `find.byType(MaterialApp)` with `find.byKey(_goldenBoundaryKey)` using a `RepaintBoundary` wrapper in `matrix_test_runner.dart`. Now works with any root widget (MaterialApp, CupertinoApp, custom).
 
 ### 2. ~~Non-guaranteed reset of mutated test view state~~ FIXED
 
