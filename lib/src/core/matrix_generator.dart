@@ -5,6 +5,7 @@ import '../models/matrix_combination.dart';
 import '../models/matrix_rule.dart';
 import '../models/matrix_sampling.dart';
 import '../models/matrix_scenario.dart';
+import 'pairwise_generator.dart';
 
 /// Generates all combinations from scenarios and axes.
 class MatrixGenerator {
@@ -41,6 +42,8 @@ class MatrixGenerator {
       case MatrixSampling.priorityBased:
         combinations =
             _applyPriorityBased(combinations, axes, maxCombinations);
+      case MatrixSampling.pairwise:
+        combinations = _applyPairwiseSampling(combinations, axes);
     }
 
     return combinations;
@@ -281,5 +284,97 @@ class MatrixGenerator {
     }
 
     return scored;
+  }
+
+  /// Pairwise sampling: covers all pairs of parameter values.
+  ///
+  /// Converts axes into abstract parameters, runs the greedy pairwise
+  /// algorithm, then maps results back to [MatrixCombination]s.
+  static List<MatrixCombination> _applyPairwiseSampling(
+    List<MatrixCombination> combinations,
+    MatrixAxes axes,
+  ) {
+    if (combinations.isEmpty) return combinations;
+
+    // Group by scenario — pairwise covers axis pairs, scenarios are separate
+    final byScenario = <String, List<MatrixCombination>>{};
+    for (final c in combinations) {
+      (byScenario[c.scenario.name] ??= []).add(c);
+    }
+
+    // Build parameter sizes from axes
+    final paramSizes = <int>[
+      axes.themes.length,
+      axes.locales.length,
+      axes.textScales.length,
+      axes.devices.length,
+    ];
+    if (axes.directions.isNotEmpty) {
+      paramSizes.add(axes.directions.length);
+    }
+
+    // Remove single-value parameters (no pairs to cover)
+    final activeParams = <int>[];
+    final activeParamSizes = <int>[];
+    for (var i = 0; i < paramSizes.length; i++) {
+      if (paramSizes[i] > 1) {
+        activeParams.add(i);
+        activeParamSizes.add(paramSizes[i]);
+      }
+    }
+
+    // If 0 or 1 multi-value params, pairwise = full (no pairs to optimize)
+    if (activeParamSizes.length <= 1) return combinations;
+
+    // Generate pairwise covering array
+    final testCases = PairwiseGenerator.generate(activeParamSizes);
+
+    final result = <MatrixCombination>[];
+
+    for (final scenario in byScenario.entries) {
+      final scenarioCombos = scenario.value;
+      if (scenarioCombos.isEmpty) continue;
+
+      for (final testCase in testCases) {
+        // Map active param indices back to full param values
+        var themeIdx = 0;
+        var localeIdx = 0;
+        var textScaleIdx = 0;
+        var deviceIdx = 0;
+        var directionIdx = 0;
+
+        for (var i = 0; i < activeParams.length; i++) {
+          switch (activeParams[i]) {
+            case 0: themeIdx = testCase[i];
+            case 1: localeIdx = testCase[i];
+            case 2: textScaleIdx = testCase[i];
+            case 3: deviceIdx = testCase[i];
+            case 4: directionIdx = testCase[i];
+          }
+        }
+
+        // Find matching combination from the full set
+        final theme = axes.themes[themeIdx];
+        final locale = axes.locales[localeIdx];
+        final textScale = axes.textScales[textScaleIdx];
+        final device = axes.devices[deviceIdx];
+        final direction = axes.directions.isNotEmpty
+            ? axes.directions[directionIdx]
+            : directionForLocale(locale);
+
+        final match = scenarioCombos.where((c) =>
+            c.theme.name == theme.name &&
+            c.locale == locale &&
+            c.textScale == textScale &&
+            c.device.name == device.name &&
+            c.direction == direction);
+
+        if (match.isNotEmpty) {
+          result.add(match.first);
+        }
+      }
+    }
+
+    return result;
   }
 }

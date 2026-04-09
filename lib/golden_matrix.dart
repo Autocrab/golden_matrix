@@ -13,6 +13,7 @@ export 'src/models/matrix_preset.dart';
 export 'src/core/matrix_generator.dart';
 export 'src/core/matrix_report_writer.dart';
 export 'src/core/naming_strategy.dart';
+export 'src/core/pairwise_generator.dart';
 
 // Flutter
 export 'src/flutter/font_loader.dart';

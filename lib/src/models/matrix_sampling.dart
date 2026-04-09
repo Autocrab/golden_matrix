@@ -8,4 +8,7 @@ enum MatrixSampling {
 
   /// High-value combinations first, sorted by priority score.
   priorityBased,
+
+  /// All-pairs coverage: every pair of parameter values appears in at least one test case.
+  pairwise,
 }
