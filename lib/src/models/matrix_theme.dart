@@ -32,20 +32,30 @@ class MatrixTheme {
 
   const MatrixTheme._(this.name, [this.themeData, this.data]);
 
-  static const light = MatrixTheme._('light');
-  static const dark = MatrixTheme._('dark');
+  static const light = MatrixTheme._('light', null, null);
+  static const dark = MatrixTheme._('dark', null, null);
 
   /// Creates a custom theme with a [name], [ThemeData], and optional [data].
   factory MatrixTheme.custom(String name, ThemeData themeData, {Object? data}) =>
       MatrixTheme._(name, themeData, data);
 
+  /// Whether this is the built-in dark theme.
+  bool get isDark => identical(this, dark) || (themeData?.brightness == Brightness.dark);
+
   /// Returns the resolved ThemeData.
   ThemeData resolve() {
     if (themeData != null) return themeData!;
-    return name == 'dark' ? ThemeData.dark() : ThemeData.light();
+    return isDark ? ThemeData.dark() : ThemeData.light();
   }
 
   String get slug => slugify(name);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is MatrixTheme && other.name == name);
+
+  @override
+  int get hashCode => name.hashCode;
 
   @override
   String toString() => 'MatrixTheme($name)';

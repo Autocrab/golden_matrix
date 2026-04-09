@@ -146,10 +146,10 @@ class MatrixGenerator {
       // Find the base combination
       final base = scenarioCombos.where(
         (c) =>
-            c.theme.name == baseTheme.name &&
+            c.theme == baseTheme &&
             c.locale == baseLocale &&
             c.textScale == baseTextScale &&
-            c.device.name == baseDevice.name &&
+            c.device == baseDevice &&
             c.direction == baseDirection,
       );
 
@@ -163,10 +163,7 @@ class MatrixGenerator {
 
       // Delta: one combo per axis with >1 value, changing only that axis
       if (axes.themes.length > 1) {
-        final altTheme = axes.themes.firstWhere(
-          (t) => t.name != baseTheme.name,
-          orElse: () => baseTheme,
-        );
+        final altTheme = axes.themes.firstWhere((t) => t != baseTheme, orElse: () => baseTheme);
         _addDelta(
           result,
           scenarioCombos,
@@ -212,10 +209,7 @@ class MatrixGenerator {
       }
 
       if (axes.devices.length > 1) {
-        final altDevice = axes.devices.firstWhere(
-          (d) => d.name != baseDevice.name,
-          orElse: () => baseDevice,
-        );
+        final altDevice = axes.devices.firstWhere((d) => d != baseDevice, orElse: () => baseDevice);
         _addDelta(
           result,
           scenarioCombos,
@@ -261,21 +255,21 @@ class MatrixGenerator {
   ) {
     final match = pool.where(
       (c) =>
-          c.scenario.name == scenario.name &&
-          c.theme.name == theme.name &&
+          c.scenario == scenario &&
+          c.theme == theme &&
           c.locale == locale &&
           c.textScale == textScale &&
-          c.device.name == device.name &&
+          c.device == device &&
           c.direction == direction,
     );
     if (match.isNotEmpty &&
         !result.any(
           (r) =>
-              r.scenario.name == match.first.scenario.name &&
-              r.theme.name == match.first.theme.name &&
+              r.scenario == match.first.scenario &&
+              r.theme == match.first.theme &&
               r.locale == match.first.locale &&
               r.textScale == match.first.textScale &&
-              r.device.name == match.first.device.name &&
+              r.device == match.first.device &&
               r.direction == match.first.direction,
         )) {
       result.add(match.first);
@@ -311,10 +305,10 @@ class MatrixGenerator {
 
     int score(MatrixCombination c) {
       var s = 0;
-      final isDark = c.theme.name == 'dark';
+      final isDark = c.theme.isDark;
       final isLargeText = c.textScale > 1.0;
       final isRtl = c.direction == TextDirection.rtl;
-      final isSmallestDevice = c.device.name == smallestDevice.name;
+      final isSmallestDevice = c.device == smallestDevice;
       final isNonFirstLocale = c.locale != firstLocale;
       final isNonFirstDevice = c.device.name != firstDevice.name;
 
@@ -418,10 +412,10 @@ class MatrixGenerator {
 
         final match = scenarioCombos.where(
           (c) =>
-              c.theme.name == theme.name &&
+              c.theme == theme &&
               c.locale == locale &&
               c.textScale == textScale &&
-              c.device.name == device.name &&
+              c.device == device &&
               c.direction == direction,
         );
 

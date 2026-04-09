@@ -78,5 +78,12 @@ class MatrixDevice {
   String get slug => slugify(name);
 
   @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is MatrixDevice && other.name == name);
+
+  @override
+  int get hashCode => name.hashCode;
+
+  @override
   String toString() => 'MatrixDevice($name, ${logicalSize.width}x${logicalSize.height})';
 }
