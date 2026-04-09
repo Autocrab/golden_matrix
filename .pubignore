@@ -1,3 +1,7 @@
 golden_matrix_plan.md
 docs/
 .claude/
+build/
+example/build/
+*.iml
+CLAUDE.md
