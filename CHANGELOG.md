@@ -1,3 +1,8 @@
+## 0.6.1
+
+- **Fix** — use `dev_dependencies` in README examples (was incorrectly `dependencies`)
+- **Docs** — add pub.dev badge to README
+
 ## 0.6.0
 
 - **Value equality** — `MatrixTheme`, `MatrixDevice`, `MatrixScenario` now use `==`/`hashCode` instead of name-string comparisons
