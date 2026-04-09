@@ -11,12 +11,14 @@ class MatrixCombinationResult {
   final MatrixResultStatus status;
   final String goldenPath;
   final String? errorMessage;
+  final List<String> warnings;
 
   const MatrixCombinationResult({
     required this.combination,
     required this.status,
     required this.goldenPath,
     this.errorMessage,
+    this.warnings = const [],
   });
 
   Map<String, dynamic> toJson() => {
@@ -29,6 +31,7 @@ class MatrixCombinationResult {
     'status': status.name,
     'goldenPath': goldenPath,
     if (errorMessage != null) 'error': errorMessage,
+    if (warnings.isNotEmpty) 'warnings': warnings,
   };
 }
 
@@ -50,6 +53,7 @@ class MatrixResult {
   int get passed => results.where((r) => r.status == MatrixResultStatus.passed).length;
   int get failed => results.where((r) => r.status == MatrixResultStatus.failed).length;
   int get skipped => results.where((r) => r.status == MatrixResultStatus.skipped).length;
+  int get warningCount => results.fold(0, (sum, r) => sum + r.warnings.length);
 
   Map<String, dynamic> toJson() => {
     'name': name,
@@ -59,6 +63,7 @@ class MatrixResult {
     'passed': passed,
     'failed': failed,
     'skipped': skipped,
+    'warnings': warningCount,
     'results': results.map((r) => r.toJson()).toList(),
   };
 }

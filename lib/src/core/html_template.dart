@@ -67,6 +67,11 @@ class HtmlTemplate {
         '<span class="stat-label">Skipped</span></div>',
       );
     }
+    if (result.warningCount > 0) {
+      buf.writeln(
+        '<div class="stat stat-warning"><span class="stat-value">${result.warningCount}</span><span class="stat-label">Warnings</span></div>',
+      );
+    }
     buf.writeln('</div>');
     buf.writeln('</header>');
   }
@@ -171,6 +176,9 @@ class HtmlTemplate {
     buf.writeln('</div>');
     if (r.errorMessage != null) {
       buf.writeln('<div class="error">${_esc(r.errorMessage!)}</div>');
+    }
+    if (r.warnings.isNotEmpty) {
+      buf.writeln('<div class="warning">${r.warnings.map((w) => _esc(w)).join('<br>')}</div>');
     }
     buf.writeln('</div>');
   }
@@ -284,5 +292,8 @@ summary { cursor: pointer; font-size: 1.1rem; font-weight: 600; padding: 8px 0; 
 .badge-skipped { background: var(--badge-skip); color: var(--badge-skip-text); }
 .tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: var(--tag-bg); color: var(--tag-text); }
 .error { padding: 8px; font-size: 0.75rem; color: var(--badge-fail-text); background: var(--badge-fail); border-top: 1px solid var(--border); word-break: break-all; max-height: 60px; overflow: auto; }
+.stat-warning { border-color: #e0a800; }
+.stat-warning .stat-value { color: #e0a800; }
+.warning { padding: 8px; font-size: 0.75rem; color: #856404; background: #fff3cd; border-top: 1px solid var(--border); word-break: break-all; max-height: 60px; overflow: auto; }
 ''';
 }

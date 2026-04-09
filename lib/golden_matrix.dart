@@ -16,6 +16,7 @@ export 'src/core/naming_strategy.dart';
 export 'src/core/pairwise_generator.dart';
 
 // Flutter
+export 'src/flutter/error_capture.dart';
 export 'src/flutter/font_loader.dart';
 export 'src/flutter/matrix_widget_wrapper.dart';
 export 'src/flutter/pump_helpers.dart';

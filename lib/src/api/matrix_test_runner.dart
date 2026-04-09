@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../core/matrix_generator.dart';
 import '../core/matrix_report_writer.dart';
 import '../core/naming_strategy.dart';
+import '../flutter/error_capture.dart';
 import '../flutter/pump_helpers.dart';
 import '../models/matrix_axes.dart';
 import '../models/matrix_combination.dart';
@@ -75,6 +76,7 @@ void runMatrixTests(
 
           testWidgets(_testDescription(combination), (WidgetTester tester) async {
             PumpHelpers.configureView(tester, combination.device);
+            final capture = ErrorCapture()..start();
             try {
               final widget = RepaintBoundary(
                 key: _goldenBoundaryKey,
@@ -83,6 +85,7 @@ void runMatrixTests(
 
               await tester.pumpWidget(widget);
               await tester.pumpAndSettle();
+              capture.stop();
 
               if (report) {
                 try {
@@ -92,6 +95,7 @@ void runMatrixTests(
                       combination: combination,
                       status: MatrixResultStatus.passed,
                       goldenPath: goldenPath,
+                      warnings: List.unmodifiable(capture.warnings),
                     ),
                   );
                 } catch (e) {
@@ -101,6 +105,7 @@ void runMatrixTests(
                       status: MatrixResultStatus.failed,
                       goldenPath: goldenPath,
                       errorMessage: e.toString(),
+                      warnings: List.unmodifiable(capture.warnings),
                     ),
                   );
                   rethrow;
@@ -109,6 +114,7 @@ void runMatrixTests(
                 await expectLater(find.byKey(_goldenBoundaryKey), matchesGoldenFile(goldenPath));
               }
             } finally {
+              capture.stop();
               PumpHelpers.resetView(tester);
             }
           });
