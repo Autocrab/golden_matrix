@@ -913,11 +913,13 @@ Why second:
 
 **Resolution:** Replaced `dynamic theme` and `dynamic device` with `MatrixTheme` and `MatrixDevice` in `_addDelta`. Added explicit imports.
 
-### 8. Missing integration coverage for infrastructure
+### 8. ~~Missing integration coverage for infrastructure~~ FIXED
 
-Why third:
-- crucial medium-term investment
-- lower urgency than fixing actual design mismatches
+~~Why third:~~
+- ~~crucial medium-term investment~~
+- ~~lower urgency than fixing actual design mismatches~~
+
+**Resolution:** Added `test/integration/` with 30 integration tests covering PumpHelpers (view state, cleanup, multi-device cycles, leak detection), MatrixWidgetWrapper (theme, locale, direction, textScale, wrapChild, debug banner), and MatrixReportWriter/HtmlTemplate (JSON/HTML file I/O, slug naming, XSS escaping, image paths, filters, empty results).
 
 ---
 
