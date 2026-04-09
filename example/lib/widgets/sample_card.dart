@@ -5,12 +5,7 @@ class SampleCard extends StatelessWidget {
   final String? subtitle;
   final IconData icon;
 
-  const SampleCard({
-    super.key,
-    required this.title,
-    this.subtitle,
-    this.icon = Icons.info_outline,
-  });
+  const SampleCard({super.key, required this.title, this.subtitle, this.icon = Icons.info_outline});
 
   @override
   Widget build(BuildContext context) {

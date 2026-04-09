@@ -45,8 +45,7 @@ void screenMatrixGolden(
   String Function(MatrixCombination)? fileNameBuilder,
   bool report = true,
 }) {
-  final scenarios = states ??
-      [MatrixScenario('default', builder: () => const SizedBox.shrink())];
+  final scenarios = states ?? [MatrixScenario('default', builder: () => const SizedBox.shrink())];
 
   runMatrixTests(
     'screenMatrixGolden: $name',

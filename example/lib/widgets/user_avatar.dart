@@ -15,10 +15,10 @@ class UserAvatar extends StatelessWidget {
   });
 
   double get _radius => switch (size) {
-        AvatarSize.small => 16,
-        AvatarSize.medium => 24,
-        AvatarSize.large => 36,
-      };
+    AvatarSize.small => 16,
+    AvatarSize.medium => 24,
+    AvatarSize.large => 36,
+  };
 
   String get _initials {
     final parts = name.split(' ');
@@ -54,10 +54,7 @@ class UserAvatar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.green,
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: theme.colorScheme.surface,
-                  width: 2,
-                ),
+                border: Border.all(color: theme.colorScheme.surface, width: 2),
               ),
             ),
           ),

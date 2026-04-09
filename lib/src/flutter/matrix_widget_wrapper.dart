@@ -45,9 +45,7 @@ class MatrixWidgetWrapper extends StatelessWidget {
             textScaler: TextScaler.linear(combination.textScale),
             padding: combination.device.safeArea,
           ),
-          child: Scaffold(
-            body: Center(child: child),
-          ),
+          child: Scaffold(body: Center(child: child)),
         ),
       ),
     );

@@ -23,8 +23,7 @@ class HtmlTemplate {
   static void _writeHead(StringBuffer buf, String title) {
     buf.writeln('<head>');
     buf.writeln('<meta charset="UTF-8">');
-    buf.writeln(
-        '<meta name="viewport" content="width=device-width, initial-scale=1.0">');
+    buf.writeln('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
     buf.writeln('<title>${_esc(title)} — Golden Matrix Report</title>');
     buf.writeln('<style>');
     buf.writeln(_css);
@@ -36,7 +35,8 @@ class HtmlTemplate {
     final duration = result.duration.inSeconds > 0
         ? '${result.duration.inSeconds}s'
         : '${result.duration.inMilliseconds}ms';
-    final time = '${result.timestamp.year}'
+    final time =
+        '${result.timestamp.year}'
         '-${_pad(result.timestamp.month)}'
         '-${_pad(result.timestamp.day)}'
         ' ${_pad(result.timestamp.hour)}'
@@ -48,59 +48,52 @@ class HtmlTemplate {
     buf.writeln('<p class="meta">$time &middot; $duration</p>');
     buf.writeln('<div class="summary">');
     buf.writeln(
-        '<div class="stat"><span class="stat-value">${result.total}</span>'
-        '<span class="stat-label">Total</span></div>');
+      '<div class="stat"><span class="stat-value">${result.total}</span>'
+      '<span class="stat-label">Total</span></div>',
+    );
     buf.writeln(
-        '<div class="stat stat-passed"><span class="stat-value">${result.passed}</span>'
-        '<span class="stat-label">Passed</span></div>');
+      '<div class="stat stat-passed"><span class="stat-value">${result.passed}</span>'
+      '<span class="stat-label">Passed</span></div>',
+    );
     if (result.failed > 0) {
       buf.writeln(
-          '<div class="stat stat-failed"><span class="stat-value">${result.failed}</span>'
-          '<span class="stat-label">Failed</span></div>');
+        '<div class="stat stat-failed"><span class="stat-value">${result.failed}</span>'
+        '<span class="stat-label">Failed</span></div>',
+      );
     }
     if (result.skipped > 0) {
       buf.writeln(
-          '<div class="stat stat-skipped"><span class="stat-value">${result.skipped}</span>'
-          '<span class="stat-label">Skipped</span></div>');
+        '<div class="stat stat-skipped"><span class="stat-value">${result.skipped}</span>'
+        '<span class="stat-label">Skipped</span></div>',
+      );
     }
     buf.writeln('</div>');
     buf.writeln('</header>');
   }
 
   static void _writeFilters(StringBuffer buf, MatrixResult result) {
-    final scenarios = result.results
-        .map((r) => r.combination.scenario.name)
-        .toSet()
-        .toList()
+    final scenarios = result.results.map((r) => r.combination.scenario.name).toSet().toList()
       ..sort();
-    final themes = result.results
-        .map((r) => r.combination.theme.name)
-        .toSet()
-        .toList()
-      ..sort();
-    final statuses = result.results.map((r) => r.status.name).toSet().toList()
-      ..sort();
+    final themes = result.results.map((r) => r.combination.theme.name).toSet().toList()..sort();
+    final statuses = result.results.map((r) => r.status.name).toSet().toList()..sort();
 
     buf.writeln('<div class="filters">');
     // Scenario filter
-    buf.writeln(
-        '<label>Scenario <select id="filter-scenario" onchange="filterCards()">');
+    buf.writeln('<label>Scenario <select id="filter-scenario" onchange="filterCards()">');
     buf.writeln('<option value="all">All</option>');
     for (final s in scenarios) {
       buf.writeln('<option value="${_esc(s)}">${_esc(s)}</option>');
     }
     buf.writeln('</select></label>');
     // Theme filter
-    buf.writeln(
-        '<label>Theme <select id="filter-theme" onchange="filterCards()">');
+    buf.writeln('<label>Theme <select id="filter-theme" onchange="filterCards()">');
     buf.writeln('<option value="all">All</option>');
     for (final t in themes) {
       buf.writeln('<option value="${_esc(t)}">${_esc(t)}</option>');
     }
     buf.writeln('</select></label>');
     // Status filter
-    buf.writeln(
-        '<label>Status <select id="filter-status" onchange="filterCards()">');
+    buf.writeln('<label>Status <select id="filter-status" onchange="filterCards()">');
     buf.writeln('<option value="all">All</option>');
     for (final s in statuses) {
       buf.writeln('<option value="${_esc(s)}">${_esc(s)}</option>');
@@ -118,23 +111,18 @@ class HtmlTemplate {
     for (final entry in grouped.entries) {
       final scenarioName = entry.key;
       final results = entry.value;
-      final passCount =
-          results.where((r) => r.status == MatrixResultStatus.passed).length;
-      final failCount =
-          results.where((r) => r.status == MatrixResultStatus.failed).length;
+      final passCount = results.where((r) => r.status == MatrixResultStatus.passed).length;
+      final failCount = results.where((r) => r.status == MatrixResultStatus.failed).length;
 
-      buf.writeln(
-          '<details open class="scenario-section" data-scenario="${_esc(scenarioName)}">');
+      buf.writeln('<details open class="scenario-section" data-scenario="${_esc(scenarioName)}">');
       buf.writeln('<summary>');
       buf.writeln('<span class="scenario-name">${_esc(scenarioName)}</span>');
       buf.writeln('<span class="scenario-count">${results.length} tests');
       if (failCount > 0) {
-        buf.writeln(
-            ' &middot; <span class="text-fail">$failCount failed</span>');
+        buf.writeln(' &middot; <span class="text-fail">$failCount failed</span>');
       }
       if (passCount == results.length) {
-        buf.writeln(
-            ' &middot; <span class="text-pass">all passed</span>');
+        buf.writeln(' &middot; <span class="text-pass">all passed</span>');
       }
       buf.writeln('</span>');
       buf.writeln('</summary>');
@@ -153,9 +141,7 @@ class HtmlTemplate {
     final c = r.combination;
     final dir = c.direction == TextDirection.ltr ? 'ltr' : 'rtl';
     final locale = c.locale.toLanguageTag();
-    final scale = c.textScale % 1 == 0
-        ? '${c.textScale.toInt()}x'
-        : '${c.textScale}x';
+    final scale = c.textScale % 1 == 0 ? '${c.textScale.toInt()}x' : '${c.textScale}x';
     final imgSrc = r.goldenPath.replaceFirst('goldens/', '');
     final statusClass = switch (r.status) {
       MatrixResultStatus.passed => 'badge-passed',
@@ -164,14 +150,16 @@ class HtmlTemplate {
     };
 
     buf.writeln(
-        '<div class="card" data-scenario="${_esc(c.scenario.name)}" '
-        'data-theme="${_esc(c.theme.name)}" data-status="${r.status.name}">');
+      '<div class="card" data-scenario="${_esc(c.scenario.name)}" '
+      'data-theme="${_esc(c.theme.name)}" data-status="${r.status.name}">',
+    );
     buf.writeln('<a href="${_esc(imgSrc)}" target="_blank">');
-    buf.writeln('<img src="${_esc(imgSrc)}" loading="lazy" '
-        'alt="${_esc(c.scenario.name)}" '
-        'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">');
     buf.writeln(
-        '<div class="img-placeholder" style="display:none">No image</div>');
+      '<img src="${_esc(imgSrc)}" loading="lazy" '
+      'alt="${_esc(c.scenario.name)}" '
+      'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">',
+    );
+    buf.writeln('<div class="img-placeholder" style="display:none">No image</div>');
     buf.writeln('</a>');
     buf.writeln('<div class="card-meta">');
     buf.writeln('<span class="$statusClass">${r.status.name}</span>');

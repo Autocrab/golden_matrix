@@ -9,8 +9,7 @@ class PumpHelpers {
   /// Sets physical size (logical × pixelRatio) and device pixel ratio
   /// on [tester.view].
   static void configureView(WidgetTester tester, MatrixDevice device) {
-    tester.view.physicalSize =
-        device.logicalSize * device.pixelRatio;
+    tester.view.physicalSize = device.logicalSize * device.pixelRatio;
     tester.view.devicePixelRatio = device.pixelRatio;
   }
 

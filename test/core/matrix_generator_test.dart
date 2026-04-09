@@ -26,9 +26,7 @@ void main() {
           MatrixScenario('a', builder: placeholder),
           MatrixScenario('b', builder: placeholder),
         ],
-        axes: const MatrixAxes(
-          themes: [MatrixTheme.light, MatrixTheme.dark],
-        ),
+        axes: const MatrixAxes(themes: [MatrixTheme.light, MatrixTheme.dark]),
       );
 
       expect(combinations.length, 4);
@@ -54,19 +52,13 @@ void main() {
     test('direction inferred from locale: ar → RTL, en → LTR', () {
       final combinations = MatrixGenerator.generate(
         scenarios: [MatrixScenario('test', builder: placeholder)],
-        axes: MatrixAxes(
-          locales: const [Locale('en'), Locale('ar')],
-        ),
+        axes: MatrixAxes(locales: const [Locale('en'), Locale('ar')]),
       );
 
       expect(combinations.length, 2);
 
-      final enCombo = combinations.firstWhere(
-        (c) => c.locale == const Locale('en'),
-      );
-      final arCombo = combinations.firstWhere(
-        (c) => c.locale == const Locale('ar'),
-      );
+      final enCombo = combinations.firstWhere((c) => c.locale == const Locale('en'));
+      final arCombo = combinations.firstWhere((c) => c.locale == const Locale('ar'));
 
       expect(enCombo.direction, TextDirection.ltr);
       expect(arCombo.direction, TextDirection.rtl);
@@ -90,12 +82,8 @@ void main() {
     test('exclude rule removes matching combinations', () {
       final combinations = MatrixGenerator.generate(
         scenarios: [MatrixScenario('test', builder: placeholder)],
-        axes: const MatrixAxes(
-          themes: [MatrixTheme.light, MatrixTheme.dark],
-        ),
-        rules: [
-          MatrixRule.exclude((c) => c.theme.name == 'dark'),
-        ],
+        axes: const MatrixAxes(themes: [MatrixTheme.light, MatrixTheme.dark]),
+        rules: [MatrixRule.exclude((c) => c.theme.name == 'dark')],
       );
 
       expect(combinations.length, 1);
@@ -108,9 +96,7 @@ void main() {
           MatrixScenario('a', builder: placeholder),
           MatrixScenario('b', builder: placeholder),
         ],
-        axes: const MatrixAxes(
-          themes: [MatrixTheme.light, MatrixTheme.dark],
-        ),
+        axes: const MatrixAxes(themes: [MatrixTheme.light, MatrixTheme.dark]),
         rules: [
           MatrixRule.exclude((c) => c.theme.name == 'dark'),
           MatrixRule.exclude((c) => c.scenario.name == 'b'),

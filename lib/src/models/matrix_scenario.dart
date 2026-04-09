@@ -9,11 +9,7 @@ class MatrixScenario {
   final ScenarioBuilder builder;
   final List<String> tags;
 
-  const MatrixScenario(
-    this.name, {
-    required this.builder,
-    this.tags = const [],
-  });
+  const MatrixScenario(this.name, {required this.builder, this.tags = const []});
 
   String get slug => name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '_');
 

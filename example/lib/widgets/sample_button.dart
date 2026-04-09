@@ -19,11 +19,7 @@ class SampleButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: enabled && !loading ? (onPressed ?? () {}) : null,
       child: loading
-          ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
+          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
           : Text(label),
     );
   }

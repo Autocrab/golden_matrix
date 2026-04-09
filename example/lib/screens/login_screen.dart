@@ -4,11 +4,7 @@ class LoginScreen extends StatelessWidget {
   final bool isLoading;
   final String? errorMessage;
 
-  const LoginScreen({
-    super.key,
-    this.isLoading = false,
-    this.errorMessage,
-  });
+  const LoginScreen({super.key, this.isLoading = false, this.errorMessage});
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +17,7 @@ class LoginScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              Icon(
-                Icons.lock_outline,
-                size: 64,
-                color: theme.colorScheme.primary,
-              ),
+              Icon(Icons.lock_outline, size: 64, color: theme.colorScheme.primary),
               const SizedBox(height: 16),
               Text(
                 'Welcome back',
@@ -45,9 +37,7 @@ class LoginScreen extends StatelessWidget {
                 decoration: InputDecoration(
                   labelText: 'Email',
                   prefixIcon: const Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 16),
@@ -56,9 +46,7 @@ class LoginScreen extends StatelessWidget {
                 decoration: InputDecoration(
                   labelText: 'Password',
                   prefixIcon: const Icon(Icons.lock_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               if (errorMessage != null) ...[
@@ -82,9 +70,7 @@ class LoginScreen extends StatelessWidget {
                 onPressed: isLoading ? null : () {},
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: isLoading
                     ? const SizedBox(
@@ -98,14 +84,8 @@ class LoginScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Don't have an account? ",
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text('Sign Up'),
-                  ),
+                  Text("Don't have an account? ", style: theme.textTheme.bodyMedium),
+                  TextButton(onPressed: () {}, child: const Text('Sign Up')),
                 ],
               ),
             ],

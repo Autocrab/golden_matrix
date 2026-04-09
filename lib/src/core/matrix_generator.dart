@@ -30,8 +30,7 @@ class MatrixGenerator {
     }
 
     // 3. Apply includeOnly rules
-    for (final rule
-        in rules.where((r) => r.type == MatrixRuleType.includeOnly)) {
+    for (final rule in rules.where((r) => r.type == MatrixRuleType.includeOnly)) {
       combinations = combinations.where((c) => rule.predicate(c)).toList();
     }
 
@@ -42,8 +41,7 @@ class MatrixGenerator {
       case MatrixSampling.smoke:
         combinations = _applySmokeSampling(combinations, axes);
       case MatrixSampling.priorityBased:
-        combinations =
-            _applyPriorityBased(combinations, axes, maxCombinations);
+        combinations = _applyPriorityBased(combinations, axes, maxCombinations);
       case MatrixSampling.pairwise:
         combinations = _applyPairwiseSampling(combinations, axes);
     }
@@ -54,9 +52,7 @@ class MatrixGenerator {
   /// Returns the text direction for a given locale.
   static TextDirection directionForLocale(Locale locale) {
     const rtlLanguages = {'ar', 'he', 'fa', 'ur', 'ps', 'ku', 'yi'};
-    return rtlLanguages.contains(locale.languageCode)
-        ? TextDirection.rtl
-        : TextDirection.ltr;
+    return rtlLanguages.contains(locale.languageCode) ? TextDirection.rtl : TextDirection.ltr;
   }
 
   // -- Private helpers --
@@ -74,24 +70,28 @@ class MatrixGenerator {
             for (final device in axes.devices) {
               if (axes.directions.isEmpty) {
                 final direction = directionForLocale(locale);
-                combinations.add(MatrixCombination(
-                  scenario: scenario,
-                  theme: theme,
-                  locale: locale,
-                  textScale: textScale,
-                  device: device,
-                  direction: direction,
-                ));
-              } else {
-                for (final direction in axes.directions) {
-                  combinations.add(MatrixCombination(
+                combinations.add(
+                  MatrixCombination(
                     scenario: scenario,
                     theme: theme,
                     locale: locale,
                     textScale: textScale,
                     device: device,
                     direction: direction,
-                  ));
+                  ),
+                );
+              } else {
+                for (final direction in axes.directions) {
+                  combinations.add(
+                    MatrixCombination(
+                      scenario: scenario,
+                      theme: theme,
+                      locale: locale,
+                      textScale: textScale,
+                      device: device,
+                      direction: direction,
+                    ),
+                  );
                 }
               }
             }
@@ -137,12 +137,14 @@ class MatrixGenerator {
           : axes.directions.first;
 
       // Find the base combination
-      final base = scenarioCombos.where((c) =>
-          c.theme.name == baseTheme.name &&
-          c.locale == baseLocale &&
-          c.textScale == baseTextScale &&
-          c.device.name == baseDevice.name &&
-          c.direction == baseDirection);
+      final base = scenarioCombos.where(
+        (c) =>
+            c.theme.name == baseTheme.name &&
+            c.locale == baseLocale &&
+            c.textScale == baseTextScale &&
+            c.device.name == baseDevice.name &&
+            c.direction == baseDirection,
+      );
 
       if (base.isNotEmpty) {
         result.add(base.first);
@@ -158,20 +160,31 @@ class MatrixGenerator {
           (t) => t.name != baseTheme.name,
           orElse: () => baseTheme,
         );
-        _addDelta(result, scenarioCombos, scenario, altTheme, baseLocale,
-            baseTextScale, baseDevice, baseDirection);
+        _addDelta(
+          result,
+          scenarioCombos,
+          scenario,
+          altTheme,
+          baseLocale,
+          baseTextScale,
+          baseDevice,
+          baseDirection,
+        );
       }
 
       if (axes.locales.length > 1) {
-        final altLocale = axes.locales.firstWhere(
-          (l) => l != baseLocale,
-          orElse: () => baseLocale,
+        final altLocale = axes.locales.firstWhere((l) => l != baseLocale, orElse: () => baseLocale);
+        final altDir = axes.directions.isEmpty ? directionForLocale(altLocale) : baseDirection;
+        _addDelta(
+          result,
+          scenarioCombos,
+          scenario,
+          baseTheme,
+          altLocale,
+          baseTextScale,
+          baseDevice,
+          altDir,
         );
-        final altDir = axes.directions.isEmpty
-            ? directionForLocale(altLocale)
-            : baseDirection;
-        _addDelta(result, scenarioCombos, scenario, baseTheme, altLocale,
-            baseTextScale, baseDevice, altDir);
       }
 
       if (axes.textScales.length > 1) {
@@ -179,8 +192,16 @@ class MatrixGenerator {
         final altScale = axes.textScales
             .where((s) => s != baseTextScale)
             .fold<double>(baseTextScale, (a, b) => b > a ? b : a);
-        _addDelta(result, scenarioCombos, scenario, baseTheme, baseLocale,
-            altScale, baseDevice, baseDirection);
+        _addDelta(
+          result,
+          scenarioCombos,
+          scenario,
+          baseTheme,
+          baseLocale,
+          altScale,
+          baseDevice,
+          baseDirection,
+        );
       }
 
       if (axes.devices.length > 1) {
@@ -188,8 +209,16 @@ class MatrixGenerator {
           (d) => d.name != baseDevice.name,
           orElse: () => baseDevice,
         );
-        _addDelta(result, scenarioCombos, scenario, baseTheme, baseLocale,
-            baseTextScale, altDevice, baseDirection);
+        _addDelta(
+          result,
+          scenarioCombos,
+          scenario,
+          baseTheme,
+          baseLocale,
+          baseTextScale,
+          altDevice,
+          baseDirection,
+        );
       }
 
       if (axes.directions.length > 1) {
@@ -197,8 +226,16 @@ class MatrixGenerator {
           (d) => d != baseDirection,
           orElse: () => baseDirection,
         );
-        _addDelta(result, scenarioCombos, scenario, baseTheme, baseLocale,
-            baseTextScale, baseDevice, altDir);
+        _addDelta(
+          result,
+          scenarioCombos,
+          scenario,
+          baseTheme,
+          baseLocale,
+          baseTextScale,
+          baseDevice,
+          altDir,
+        );
       }
     }
 
@@ -215,21 +252,25 @@ class MatrixGenerator {
     MatrixDevice device,
     TextDirection direction,
   ) {
-    final match = pool.where((c) =>
-        c.scenario.name == scenario.name &&
-        c.theme.name == theme.name &&
-        c.locale == locale &&
-        c.textScale == textScale &&
-        c.device.name == device.name &&
-        c.direction == direction);
+    final match = pool.where(
+      (c) =>
+          c.scenario.name == scenario.name &&
+          c.theme.name == theme.name &&
+          c.locale == locale &&
+          c.textScale == textScale &&
+          c.device.name == device.name &&
+          c.direction == direction,
+    );
     if (match.isNotEmpty &&
-        !result.any((r) =>
-            r.scenario.name == match.first.scenario.name &&
-            r.theme.name == match.first.theme.name &&
-            r.locale == match.first.locale &&
-            r.textScale == match.first.textScale &&
-            r.device.name == match.first.device.name &&
-            r.direction == match.first.direction)) {
+        !result.any(
+          (r) =>
+              r.scenario.name == match.first.scenario.name &&
+              r.theme.name == match.first.theme.name &&
+              r.locale == match.first.locale &&
+              r.textScale == match.first.textScale &&
+              r.device.name == match.first.device.name &&
+              r.direction == match.first.direction,
+        )) {
       result.add(match.first);
     }
   }
@@ -256,9 +297,9 @@ class MatrixGenerator {
     final smallestDevice = axes.devices.reduce(
       (a, b) =>
           (a.logicalSize.width * a.logicalSize.height) <=
-                  (b.logicalSize.width * b.logicalSize.height)
-              ? a
-              : b,
+              (b.logicalSize.width * b.logicalSize.height)
+          ? a
+          : b,
     );
 
     int score(MatrixCombination c) {
@@ -278,8 +319,7 @@ class MatrixGenerator {
       return s;
     }
 
-    final scored = combinations.toList()
-      ..sort((a, b) => score(b).compareTo(score(a)));
+    final scored = combinations.toList()..sort((a, b) => score(b).compareTo(score(a)));
 
     if (maxCombinations != null && scored.length > maxCombinations) {
       return scored.sublist(0, maxCombinations);
@@ -347,11 +387,16 @@ class MatrixGenerator {
 
         for (var i = 0; i < activeParams.length; i++) {
           switch (activeParams[i]) {
-            case 0: themeIdx = testCase[i];
-            case 1: localeIdx = testCase[i];
-            case 2: textScaleIdx = testCase[i];
-            case 3: deviceIdx = testCase[i];
-            case 4: directionIdx = testCase[i];
+            case 0:
+              themeIdx = testCase[i];
+            case 1:
+              localeIdx = testCase[i];
+            case 2:
+              textScaleIdx = testCase[i];
+            case 3:
+              deviceIdx = testCase[i];
+            case 4:
+              directionIdx = testCase[i];
           }
         }
 
@@ -364,12 +409,14 @@ class MatrixGenerator {
             ? axes.directions[directionIdx]
             : directionForLocale(locale);
 
-        final match = scenarioCombos.where((c) =>
-            c.theme.name == theme.name &&
-            c.locale == locale &&
-            c.textScale == textScale &&
-            c.device.name == device.name &&
-            c.direction == direction);
+        final match = scenarioCombos.where(
+          (c) =>
+              c.theme.name == theme.name &&
+              c.locale == locale &&
+              c.textScale == textScale &&
+              c.device.name == device.name &&
+              c.direction == direction,
+        );
 
         if (match.isNotEmpty) {
           result.add(match.first);

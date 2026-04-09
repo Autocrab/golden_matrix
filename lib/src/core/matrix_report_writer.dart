@@ -22,8 +22,7 @@ class MatrixReportWriter {
   }
 
   /// Writes the report as a self-contained HTML file.
-  static Future<void> writeHtml(MatrixResult result,
-      {String? outputDir}) async {
+  static Future<void> writeHtml(MatrixResult result, {String? outputDir}) async {
     final dir = outputDir ?? _findGoldensDir(result);
     final html = HtmlTemplate.render(result);
     final file = File('$dir/${_slug(result.name)}_report.html');
@@ -56,6 +55,5 @@ class MatrixReportWriter {
     return 'goldens';
   }
 
-  static String _slug(String name) =>
-      name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '_');
+  static String _slug(String name) => name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '_');
 }

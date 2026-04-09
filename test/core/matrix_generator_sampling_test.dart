@@ -63,8 +63,9 @@ void main() {
       );
 
       // Base should be first theme + first locale
-      final hasBase = combinations.any((c) =>
-          c.theme.name == 'light' && c.locale == const Locale('en'));
+      final hasBase = combinations.any(
+        (c) => c.theme.name == 'light' && c.locale == const Locale('en'),
+      );
       expect(hasBase, isTrue);
     });
 
@@ -139,12 +140,8 @@ void main() {
     test('keeps only matching combinations', () {
       final combinations = MatrixGenerator.generate(
         scenarios: [MatrixScenario('test', builder: placeholder)],
-        axes: const MatrixAxes(
-          themes: [MatrixTheme.light, MatrixTheme.dark],
-        ),
-        rules: [
-          MatrixRule.includeOnly((c) => c.theme.name == 'dark'),
-        ],
+        axes: const MatrixAxes(themes: [MatrixTheme.light, MatrixTheme.dark]),
+        rules: [MatrixRule.includeOnly((c) => c.theme.name == 'dark')],
       );
 
       expect(combinations.length, 1);
@@ -157,9 +154,7 @@ void main() {
           MatrixScenario('a', builder: placeholder),
           MatrixScenario('b', builder: placeholder),
         ],
-        axes: const MatrixAxes(
-          themes: [MatrixTheme.light, MatrixTheme.dark],
-        ),
+        axes: const MatrixAxes(themes: [MatrixTheme.light, MatrixTheme.dark]),
         rules: [
           MatrixRule.exclude((c) => c.scenario.name == 'b'),
           MatrixRule.includeOnly((c) => c.theme.name == 'dark'),

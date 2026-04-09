@@ -76,8 +76,7 @@ void main() {
       for (var p = 0; p < params.length; p++) {
         final usedValues = result.map((tc) => tc[p]).toSet();
         for (var v = 0; v < params[p]; v++) {
-          expect(usedValues, contains(v),
-              reason: 'Param $p value $v not used');
+          expect(usedValues, contains(v), reason: 'Param $p value $v not used');
         }
       }
     });
@@ -125,9 +124,7 @@ void main() {
       );
 
       // Verify all theme-locale pairs exist
-      final themeLocalePairs = result
-          .map((c) => '${c.theme.name}_${c.locale}')
-          .toSet();
+      final themeLocalePairs = result.map((c) => '${c.theme.name}_${c.locale}').toSet();
 
       expect(themeLocalePairs, contains('light_en'));
       expect(themeLocalePairs, contains('light_ru'));
@@ -160,10 +157,7 @@ void main() {
     test('single-value axes returns full set', () {
       final result = MatrixGenerator.generate(
         scenarios: [MatrixScenario('test', builder: placeholder)],
-        axes: const MatrixAxes(
-          themes: [MatrixTheme.light],
-          locales: [Locale('en'), Locale('ar')],
-        ),
+        axes: const MatrixAxes(themes: [MatrixTheme.light], locales: [Locale('en'), Locale('ar')]),
         sampling: MatrixSampling.pairwise,
       );
 
@@ -183,9 +177,11 @@ void _verifyAllPairsCovered(List<List<int>> testCases, List<int> paramSizes) {
       }
       for (var vi = 0; vi < paramSizes[i]; vi++) {
         for (var vj = 0; vj < paramSizes[j]; vj++) {
-          expect(coveredPairs, contains('${vi}_$vj'),
-              reason:
-                  'Pair (param$i=$vi, param$j=$vj) not covered');
+          expect(
+            coveredPairs,
+            contains('${vi}_$vj'),
+            reason: 'Pair (param$i=$vi, param$j=$vj) not covered',
+          );
         }
       }
     }

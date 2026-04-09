@@ -48,10 +48,8 @@ void main() {
     scenarios: [
       MatrixScenario(
         'with_subtitle',
-        builder: () => const SampleCard(
-          title: 'Transfer Complete',
-          subtitle: 'Your money has been sent',
-        ),
+        builder: () =>
+            const SampleCard(title: 'Transfer Complete', subtitle: 'Your money has been sent'),
       ),
       MatrixScenario(
         'without_subtitle',
@@ -77,11 +75,8 @@ void main() {
       ),
       MatrixScenario(
         'large_online',
-        builder: () => const UserAvatar(
-          name: 'Alex Johnson',
-          isOnline: true,
-          size: AvatarSize.large,
-        ),
+        builder: () =>
+            const UserAvatar(name: 'Alex Johnson', isOnline: true, size: AvatarSize.large),
       ),
     ],
     axes: MatrixAxes(
@@ -112,11 +107,8 @@ void main() {
       ),
       MatrixScenario(
         'error',
-        builder: () => const NotificationBadge(
-          count: 5,
-          label: 'Errors',
-          severity: BadgeSeverity.error,
-        ),
+        builder: () =>
+            const NotificationBadge(count: 5, label: 'Errors', severity: BadgeSeverity.error),
         tags: ['severity', 'critical'],
       ),
     ],
@@ -133,9 +125,7 @@ void main() {
       theme: combination.theme.resolve(),
       locale: combination.locale,
       home: LoginScreen(
-        errorMessage: combination.scenario.name == 'error'
-            ? 'Invalid email or password'
-            : null,
+        errorMessage: combination.scenario.name == 'error' ? 'Invalid email or password' : null,
       ),
     ),
     states: [
@@ -171,11 +161,7 @@ void main() {
       themes: const [MatrixTheme.light, MatrixTheme.dark],
       locales: const [Locale('en')],
       textScales: const [1.0, 1.5],
-      devices: const [
-        MatrixDevice.phoneSmall,
-        MatrixDevice.phoneLarge,
-        MatrixDevice.tablet,
-      ],
+      devices: const [MatrixDevice.phoneSmall, MatrixDevice.phoneLarge, MatrixDevice.tablet],
     ),
     sampling: MatrixSampling.priorityBased,
     maxCombinations: 8,
@@ -186,12 +172,7 @@ void main() {
   // ---------------------------------------------------------------------------
   matrixGolden(
     'SampleButton_WithRules',
-    scenarios: [
-      MatrixScenario(
-        'default',
-        builder: () => const SampleButton(label: 'Submit'),
-      ),
-    ],
+    scenarios: [MatrixScenario('default', builder: () => const SampleButton(label: 'Submit'))],
     axes: MatrixAxes(
       themes: const [MatrixTheme.light, MatrixTheme.dark],
       locales: const [Locale('en'), Locale('ar')],
@@ -200,9 +181,7 @@ void main() {
     ),
     rules: [
       // Don't test RTL with English — only Arabic is RTL
-      MatrixRule.exclude(
-        (c) => c.locale.languageCode != 'ar' && c.direction == TextDirection.rtl,
-      ),
+      MatrixRule.exclude((c) => c.locale.languageCode != 'ar' && c.direction == TextDirection.rtl),
     ],
   );
 }

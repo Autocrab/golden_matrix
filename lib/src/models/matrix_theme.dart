@@ -10,8 +10,7 @@ class MatrixTheme {
   static const light = MatrixTheme._('light');
   static const dark = MatrixTheme._('dark');
 
-  factory MatrixTheme.custom(String name, ThemeData themeData) =>
-      MatrixTheme._(name, themeData);
+  factory MatrixTheme.custom(String name, ThemeData themeData) => MatrixTheme._(name, themeData);
 
   /// Returns the resolved ThemeData.
   ThemeData resolve() {

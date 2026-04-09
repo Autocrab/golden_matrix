@@ -61,9 +61,7 @@ Future<void> _loadRobotoFromSdk() async {
   final flutterRoot = _findFlutterRoot();
   if (flutterRoot == null) return;
 
-  final robotoFile = File(
-    '$flutterRoot/bin/cache/artifacts/material_fonts/Roboto-Regular.ttf',
-  );
+  final robotoFile = File('$flutterRoot/bin/cache/artifacts/material_fonts/Roboto-Regular.ttf');
 
   if (!robotoFile.existsSync()) return;
 

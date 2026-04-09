@@ -61,10 +61,7 @@ class PairwiseGenerator {
 
   /// Builds one test case greedily, choosing each parameter value to
   /// maximize the number of newly covered pairs.
-  static List<int> _buildGreedyTestCase(
-    List<int> parameterSizes,
-    Set<_Pair> uncovered,
-  ) {
+  static List<int> _buildGreedyTestCase(List<int> parameterSizes, Set<_Pair> uncovered) {
     final numParams = parameterSizes.length;
     final chosen = List<int>.filled(numParams, -1);
 

@@ -15,16 +15,16 @@ class NotificationBadge extends StatelessWidget {
   });
 
   Color _backgroundColor(ThemeData theme) => switch (severity) {
-        BadgeSeverity.info => theme.colorScheme.primaryContainer,
-        BadgeSeverity.warning => Colors.orange.shade100,
-        BadgeSeverity.error => theme.colorScheme.errorContainer,
-      };
+    BadgeSeverity.info => theme.colorScheme.primaryContainer,
+    BadgeSeverity.warning => Colors.orange.shade100,
+    BadgeSeverity.error => theme.colorScheme.errorContainer,
+  };
 
   Color _foregroundColor(ThemeData theme) => switch (severity) {
-        BadgeSeverity.info => theme.colorScheme.onPrimaryContainer,
-        BadgeSeverity.warning => Colors.orange.shade900,
-        BadgeSeverity.error => theme.colorScheme.onErrorContainer,
-      };
+    BadgeSeverity.info => theme.colorScheme.onPrimaryContainer,
+    BadgeSeverity.warning => Colors.orange.shade900,
+    BadgeSeverity.error => theme.colorScheme.onErrorContainer,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -54,10 +54,7 @@ class NotificationBadge extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(color: _foregroundColor(theme)),
-          ),
+          Text(label, style: TextStyle(color: _foregroundColor(theme))),
         ],
       ),
     );

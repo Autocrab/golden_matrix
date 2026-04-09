@@ -59,8 +59,8 @@ void main() {
         direction: TextDirection.rtl,
       );
 
-      expect(rule.predicate(enRtl), isTrue);  // excluded: en + RTL
-      expect(rule.predicate(arRtl), isFalse);  // kept: ar + RTL
+      expect(rule.predicate(enRtl), isTrue); // excluded: en + RTL
+      expect(rule.predicate(arRtl), isFalse); // kept: ar + RTL
     });
   });
 }

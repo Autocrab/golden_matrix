@@ -55,11 +55,7 @@ void main() {
     });
 
     test('tags are preserved', () {
-      final scenario = MatrixScenario(
-        'test',
-        builder: placeholder,
-        tags: ['error', 'network'],
-      );
+      final scenario = MatrixScenario('test', builder: placeholder, tags: ['error', 'network']);
       expect(scenario.tags, ['error', 'network']);
     });
   });

@@ -25,11 +25,7 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
-          if (isOwnProfile)
-            IconButton(
-              icon: const Icon(Icons.settings_outlined),
-              onPressed: () {},
-            ),
+          if (isOwnProfile) IconButton(icon: const Icon(Icons.settings_outlined), onPressed: () {}),
         ],
       ),
       body: SingleChildScrollView(
@@ -61,11 +57,7 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  bio!,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium,
-                ),
+                child: Text(bio!, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
               ),
             ],
             const SizedBox(height: 24),
@@ -84,9 +76,7 @@ class ProfileScreen extends StatelessWidget {
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: const Text('Edit Profile'),
                     )
@@ -94,9 +84,7 @@ class ProfileScreen extends StatelessWidget {
                       onPressed: () {},
                       style: FilledButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: const Text('Follow'),
                     ),
@@ -132,18 +120,11 @@ class _StatColumn extends StatelessWidget {
     final theme = Theme.of(context);
     return Column(
       children: [
-        Text(
-          value,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text(value, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text(
           label,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
+          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
       ],
     );
