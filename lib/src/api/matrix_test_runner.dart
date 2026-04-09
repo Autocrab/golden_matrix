@@ -23,9 +23,6 @@ typedef MatrixWidgetBuilder = Widget Function(MatrixCombination combination);
 const _goldenBoundaryKey = ValueKey('__golden_matrix_boundary__');
 
 /// Internal test runner shared by [matrixGolden] and [screenMatrixGolden].
-///
-/// Handles: config resolution, matrix generation, test execution,
-/// result collection, report writing, and view state cleanup.
 void runMatrixTests(
   String name, {
   required List<MatrixScenario> scenarios,
@@ -42,52 +39,23 @@ void runMatrixTests(
   bool skip = false,
   double? tolerance,
 }) {
-  // Resolve config from preset + explicit params
-  final effectiveAxes = axes ?? preset?.axes ?? const MatrixAxes();
-  final effectiveSampling = sampling ?? preset?.sampling ?? MatrixSampling.full;
-  final effectiveRules = [...?preset?.rules, ...rules];
-
-  // Filter scenarios by tags
-  final filteredScenarios = tags != null
-      ? scenarios.where((s) => s.tags.any((t) => tags.contains(t))).toList()
-      : scenarios;
-
-  // Generate combinations
-  final combinations = MatrixGenerator.generate(
-    scenarios: filteredScenarios,
-    axes: effectiveAxes,
-    sampling: effectiveSampling,
-    rules: effectiveRules,
+  final combinations = _resolveCombinations(
+    scenarios: scenarios,
+    axes: axes,
+    preset: preset,
+    sampling: sampling,
+    rules: rules,
+    tags: tags,
     maxCombinations: maxCombinations,
   );
 
-  // Group by scenario
-  final byScenario = <String, List<MatrixCombination>>{};
-  for (final c in combinations) {
-    (byScenario[c.scenario.name] ??= []).add(c);
-  }
+  final byScenario = _groupByScenario(combinations);
 
-  final List<MatrixCombinationResult> combinationResults = [];
+  final List<MatrixCombinationResult> results = [];
   final stopwatch = Stopwatch()..start();
 
   group(name, () {
-    GoldenFileComparator? originalComparator;
-
-    if (tolerance != null) {
-      setUp(() {
-        originalComparator = goldenFileComparator;
-        goldenFileComparator = _TolerantComparator(
-          goldenFileComparator as LocalFileComparator,
-          tolerance,
-        );
-      });
-
-      tearDown(() {
-        if (originalComparator != null) {
-          goldenFileComparator = originalComparator!;
-        }
-      });
-    }
+    _setupTolerance(tolerance);
 
     for (final entry in byScenario.entries) {
       group(entry.key, () {
@@ -96,79 +64,174 @@ void runMatrixTests(
               ? fileNameBuilder(combination)
               : NamingStrategy.goldenPath(combination);
 
-          // Record skipped results for accurate reporting
           if (skip && report) {
-            combinationResults.add(
-              MatrixCombinationResult(
-                combination: combination,
-                status: MatrixResultStatus.skipped,
-                goldenPath: goldenPath,
-              ),
-            );
+            _recordSkipped(results, combination, goldenPath);
           }
 
-          testWidgets(_testDescription(combination), skip: skip, (WidgetTester tester) async {
-            PumpHelpers.configureView(tester, combination.device);
-            final capture = ErrorCapture()..start();
-            try {
-              final widget = RepaintBoundary(
-                key: _goldenBoundaryKey,
-                child: widgetBuilder(combination),
-              );
-
-              await tester.pumpWidget(widget);
-              await tester.pumpAndSettle();
-              capture.stop();
-
-              if (report) {
-                try {
-                  await expectLater(find.byKey(_goldenBoundaryKey), matchesGoldenFile(goldenPath));
-                  combinationResults.add(
-                    MatrixCombinationResult(
-                      combination: combination,
-                      status: MatrixResultStatus.passed,
-                      goldenPath: goldenPath,
-                      warnings: List.unmodifiable(capture.warnings),
-                    ),
-                  );
-                } catch (e) {
-                  combinationResults.add(
-                    MatrixCombinationResult(
-                      combination: combination,
-                      status: MatrixResultStatus.failed,
-                      goldenPath: goldenPath,
-                      errorMessage: e.toString(),
-                      warnings: List.unmodifiable(capture.warnings),
-                    ),
-                  );
-                  rethrow;
-                }
-              } else {
-                await expectLater(find.byKey(_goldenBoundaryKey), matchesGoldenFile(goldenPath));
-              }
-            } finally {
-              capture.stop();
-              PumpHelpers.resetView(tester);
-            }
-          });
+          testWidgets(
+            _testDescription(combination),
+            skip: skip,
+            (tester) => _executeGoldenTest(
+              tester: tester,
+              combination: combination,
+              goldenPath: goldenPath,
+              widgetBuilder: widgetBuilder,
+              report: report,
+              results: results,
+            ),
+          );
         }
       });
     }
 
     if (report) {
-      tearDownAll(() async {
-        stopwatch.stop();
-        final result = MatrixResult(
-          name: name,
-          results: combinationResults,
-          duration: stopwatch.elapsed,
-        );
-        await MatrixReportWriter.write(result, outputDir: reportDir);
-        await MatrixReportWriter.writeHtml(result, outputDir: reportDir);
-      });
+      _setupReportWriting(name, results, stopwatch, reportDir);
     }
   });
 }
+
+// -- Config resolution --
+
+List<MatrixCombination> _resolveCombinations({
+  required List<MatrixScenario> scenarios,
+  MatrixAxes? axes,
+  MatrixPreset? preset,
+  MatrixSampling? sampling,
+  List<MatrixRule> rules = const [],
+  List<String>? tags,
+  int? maxCombinations,
+}) {
+  final effectiveAxes = axes ?? preset?.axes ?? const MatrixAxes();
+  final effectiveSampling = sampling ?? preset?.sampling ?? MatrixSampling.full;
+  final effectiveRules = [...?preset?.rules, ...rules];
+
+  final filteredScenarios = tags != null
+      ? scenarios.where((s) => s.tags.any((t) => tags.contains(t))).toList()
+      : scenarios;
+
+  return MatrixGenerator.generate(
+    scenarios: filteredScenarios,
+    axes: effectiveAxes,
+    sampling: effectiveSampling,
+    rules: effectiveRules,
+    maxCombinations: maxCombinations,
+  );
+}
+
+Map<String, List<MatrixCombination>> _groupByScenario(List<MatrixCombination> combinations) {
+  final grouped = <String, List<MatrixCombination>>{};
+  for (final c in combinations) {
+    (grouped[c.scenario.name] ??= []).add(c);
+  }
+  return grouped;
+}
+
+// -- Tolerance --
+
+void _setupTolerance(double? tolerance) {
+  if (tolerance == null) return;
+
+  GoldenFileComparator? originalComparator;
+
+  setUp(() {
+    originalComparator = goldenFileComparator;
+    goldenFileComparator = _TolerantComparator(
+      goldenFileComparator as LocalFileComparator,
+      tolerance,
+    );
+  });
+
+  tearDown(() {
+    if (originalComparator != null) {
+      goldenFileComparator = originalComparator!;
+    }
+  });
+}
+
+// -- Test execution --
+
+Future<void> _executeGoldenTest({
+  required WidgetTester tester,
+  required MatrixCombination combination,
+  required String goldenPath,
+  required MatrixWidgetBuilder widgetBuilder,
+  required bool report,
+  required List<MatrixCombinationResult> results,
+}) async {
+  PumpHelpers.configureView(tester, combination.device);
+  final capture = ErrorCapture()..start();
+  try {
+    final widget = RepaintBoundary(key: _goldenBoundaryKey, child: widgetBuilder(combination));
+
+    await tester.pumpWidget(widget);
+    await tester.pumpAndSettle();
+    capture.stop();
+
+    if (report) {
+      try {
+        await expectLater(find.byKey(_goldenBoundaryKey), matchesGoldenFile(goldenPath));
+        results.add(
+          MatrixCombinationResult(
+            combination: combination,
+            status: MatrixResultStatus.passed,
+            goldenPath: goldenPath,
+            warnings: List.unmodifiable(capture.warnings),
+          ),
+        );
+      } catch (e) {
+        results.add(
+          MatrixCombinationResult(
+            combination: combination,
+            status: MatrixResultStatus.failed,
+            goldenPath: goldenPath,
+            errorMessage: e.toString(),
+            warnings: List.unmodifiable(capture.warnings),
+          ),
+        );
+        rethrow;
+      }
+    } else {
+      await expectLater(find.byKey(_goldenBoundaryKey), matchesGoldenFile(goldenPath));
+    }
+  } finally {
+    capture.stop();
+    PumpHelpers.resetView(tester);
+  }
+}
+
+// -- Result recording --
+
+void _recordSkipped(
+  List<MatrixCombinationResult> results,
+  MatrixCombination combination,
+  String goldenPath,
+) {
+  results.add(
+    MatrixCombinationResult(
+      combination: combination,
+      status: MatrixResultStatus.skipped,
+      goldenPath: goldenPath,
+    ),
+  );
+}
+
+// -- Report writing --
+
+void _setupReportWriting(
+  String name,
+  List<MatrixCombinationResult> results,
+  Stopwatch stopwatch,
+  String? reportDir,
+) {
+  tearDownAll(() async {
+    stopwatch.stop();
+    final result = MatrixResult(name: name, results: results, duration: stopwatch.elapsed);
+    await MatrixReportWriter.write(result, outputDir: reportDir);
+    await MatrixReportWriter.writeHtml(result, outputDir: reportDir);
+  });
+}
+
+// -- Helpers --
 
 String _testDescription(MatrixCombination c) {
   final dir = c.direction == TextDirection.ltr ? 'ltr' : 'rtl';
