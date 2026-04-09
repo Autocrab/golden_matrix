@@ -1,5 +1,7 @@
 # golden_matrix
 
+[![pub package](https://img.shields.io/pub/v/golden_matrix.svg)](https://pub.dev/packages/golden_matrix)
+
 Matrix-based visual regression testing for Flutter widgets and screens.
 
 Write one golden test declaration, run it across themes, locales, devices, text scales, and UI states.
