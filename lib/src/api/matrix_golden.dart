@@ -39,6 +39,7 @@ void matrixGolden(
   List<String>? tags,
   String Function(MatrixCombination)? fileNameBuilder,
   List<LocalizationsDelegate<dynamic>> extraLocalizationsDelegates = const [],
+  Widget Function(Widget child)? wrapChild,
   bool report = true,
 }) {
   runMatrixTests(
@@ -47,6 +48,7 @@ void matrixGolden(
     widgetBuilder: (combination) => MatrixWidgetWrapper(
       combination: combination,
       extraLocalizationsDelegates: extraLocalizationsDelegates,
+      wrapChild: wrapChild,
       child: combination.scenario.builder(),
     ),
     axes: axes,

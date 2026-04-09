@@ -7,16 +7,22 @@ import '../models/matrix_combination.dart';
 ///
 /// Applies theme, locale, directionality, text scale, and device safe area
 /// from the given [MatrixCombination].
+///
+/// By default wraps [child] in `Scaffold(body: Center(child: child))`.
+/// Use [wrapChild] to customize the inner layout (e.g. remove Scaffold,
+/// change alignment, add padding).
 class MatrixWidgetWrapper extends StatelessWidget {
   final MatrixCombination combination;
   final Widget child;
   final List<LocalizationsDelegate<dynamic>> extraLocalizationsDelegates;
+  final Widget Function(Widget child)? wrapChild;
 
   const MatrixWidgetWrapper({
     super.key,
     required this.combination,
     required this.child,
     this.extraLocalizationsDelegates = const [],
+    this.wrapChild,
   });
 
   @override
@@ -29,6 +35,10 @@ class MatrixWidgetWrapper extends StatelessWidget {
       GlobalCupertinoLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,
     ];
+
+    final wrappedChild = wrapChild != null
+        ? wrapChild!(child)
+        : Scaffold(body: Center(child: child));
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -45,7 +55,7 @@ class MatrixWidgetWrapper extends StatelessWidget {
             textScaler: TextScaler.linear(combination.textScale),
             padding: combination.device.safeArea,
           ),
-          child: Scaffold(body: Center(child: child)),
+          child: wrappedChild,
         ),
       ),
     );

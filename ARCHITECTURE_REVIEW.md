@@ -880,11 +880,13 @@ Interpretation:
 
 ## Priority 2
 
-### 4. Over-opinionated `MatrixWidgetWrapper`
+### 4. ~~Over-opinionated `MatrixWidgetWrapper`~~ FIXED
 
-Why second:
-- can distort actual golden output semantics
-- affects trustworthiness of results
+~~Why second:~~
+- ~~can distort actual golden output semantics~~
+- ~~affects trustworthiness of results~~
+
+**Resolution:** Added `wrapChild` callback parameter to `MatrixWidgetWrapper` and `matrixGolden()`. Default remains `Scaffold(body: Center(child: child))` for convenience. Users can override: `wrapChild: (child) => child` for no wrapping, or any custom layout.
 
 ### 5. Report writer path heuristics
 
