@@ -35,4 +35,4 @@ migrate_working_dir/
 .claude/
 
 # Internal docs
-docs/
+/CLAUDE.md

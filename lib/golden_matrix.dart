@@ -7,9 +7,11 @@ export 'src/models/matrix_device.dart';
 export 'src/models/matrix_sampling.dart';
 export 'src/models/matrix_rule.dart';
 export 'src/models/matrix_result.dart';
+export 'src/models/matrix_preset.dart';
 
 // Core
 export 'src/core/matrix_generator.dart';
+export 'src/core/matrix_report_writer.dart';
 export 'src/core/naming_strategy.dart';
 
 // Flutter

@@ -9,13 +9,58 @@ import '../models/matrix_scenario.dart';
 /// Generates all combinations from scenarios and axes.
 class MatrixGenerator {
   /// Generates a list of [MatrixCombination]s based on the given parameters.
+  ///
+  /// Pipeline: full Cartesian → exclude rules → includeOnly rules → sampling.
   static List<MatrixCombination> generate({
     required List<MatrixScenario> scenarios,
     required MatrixAxes axes,
     MatrixSampling sampling = MatrixSampling.full,
     List<MatrixRule> rules = const [],
+    int? maxCombinations,
   }) {
-    var combinations = <MatrixCombination>[];
+    // 1. Generate full Cartesian product
+    var combinations = _generateCartesian(scenarios, axes);
+
+    // 2. Apply exclude rules
+    for (final rule in rules.where((r) => r.type == MatrixRuleType.exclude)) {
+      combinations = combinations.where((c) => !rule.predicate(c)).toList();
+    }
+
+    // 3. Apply includeOnly rules
+    for (final rule
+        in rules.where((r) => r.type == MatrixRuleType.includeOnly)) {
+      combinations = combinations.where((c) => rule.predicate(c)).toList();
+    }
+
+    // 4. Apply sampling strategy
+    switch (sampling) {
+      case MatrixSampling.full:
+        break;
+      case MatrixSampling.smoke:
+        combinations = _applySmokeSampling(combinations, axes);
+      case MatrixSampling.priorityBased:
+        combinations =
+            _applyPriorityBased(combinations, axes, maxCombinations);
+    }
+
+    return combinations;
+  }
+
+  /// Returns the text direction for a given locale.
+  static TextDirection directionForLocale(Locale locale) {
+    const rtlLanguages = {'ar', 'he', 'fa', 'ur', 'ps', 'ku', 'yi'};
+    return rtlLanguages.contains(locale.languageCode)
+        ? TextDirection.rtl
+        : TextDirection.ltr;
+  }
+
+  // -- Private helpers --
+
+  static List<MatrixCombination> _generateCartesian(
+    List<MatrixScenario> scenarios,
+    MatrixAxes axes,
+  ) {
+    final combinations = <MatrixCombination>[];
 
     for (final scenario in scenarios) {
       for (final theme in axes.themes) {
@@ -23,7 +68,6 @@ class MatrixGenerator {
           for (final textScale in axes.textScales) {
             for (final device in axes.devices) {
               if (axes.directions.isEmpty) {
-                // Direction inferred from locale
                 final direction = directionForLocale(locale);
                 combinations.add(MatrixCombination(
                   scenario: scenario,
@@ -34,7 +78,6 @@ class MatrixGenerator {
                   direction: direction,
                 ));
               } else {
-                // Direction is an explicit axis
                 for (final direction in axes.directions) {
                   combinations.add(MatrixCombination(
                     scenario: scenario,
@@ -52,22 +95,191 @@ class MatrixGenerator {
       }
     }
 
-    // Apply exclusion rules
-    for (final rule in rules) {
-      if (rule.type == MatrixRuleType.exclude) {
-        combinations =
-            combinations.where((c) => !rule.predicate(c)).toList();
-      }
-    }
-
     return combinations;
   }
 
-  /// Returns the text direction for a given locale.
-  static TextDirection directionForLocale(Locale locale) {
-    const rtlLanguages = {'ar', 'he', 'fa', 'ur', 'ps', 'ku', 'yi'};
-    return rtlLanguages.contains(locale.languageCode)
-        ? TextDirection.rtl
-        : TextDirection.ltr;
+  /// Smoke sampling: per scenario, pick a base combo + one delta per axis.
+  ///
+  /// Base combo uses first value from each axis (first theme, first locale,
+  /// first textScale, first device). Then for each axis that has >1 value,
+  /// adds one combo with a non-default value for that axis only.
+  ///
+  /// Result: ~(1 + number of multi-value axes) combinations per scenario.
+  static List<MatrixCombination> _applySmokeSampling(
+    List<MatrixCombination> combinations,
+    MatrixAxes axes,
+  ) {
+    if (combinations.isEmpty) return combinations;
+
+    final result = <MatrixCombination>[];
+
+    // Group by scenario
+    final byScenario = <String, List<MatrixCombination>>{};
+    for (final c in combinations) {
+      (byScenario[c.scenario.name] ??= []).add(c);
+    }
+
+    for (final scenarioCombos in byScenario.values) {
+      if (scenarioCombos.isEmpty) continue;
+
+      // Base values: first from each axis
+      final baseTheme = axes.themes.first;
+      final baseLocale = axes.locales.first;
+      final baseTextScale = axes.textScales.first;
+      final baseDevice = axes.devices.first;
+      final baseDirection = axes.directions.isEmpty
+          ? directionForLocale(baseLocale)
+          : axes.directions.first;
+
+      // Find the base combination
+      final base = scenarioCombos.where((c) =>
+          c.theme.name == baseTheme.name &&
+          c.locale == baseLocale &&
+          c.textScale == baseTextScale &&
+          c.device.name == baseDevice.name &&
+          c.direction == baseDirection);
+
+      if (base.isNotEmpty) {
+        result.add(base.first);
+      } else if (scenarioCombos.isNotEmpty) {
+        result.add(scenarioCombos.first);
+      }
+
+      final scenario = scenarioCombos.first.scenario;
+
+      // Delta: one combo per axis with >1 value, changing only that axis
+      if (axes.themes.length > 1) {
+        final altTheme = axes.themes.firstWhere(
+          (t) => t.name != baseTheme.name,
+          orElse: () => baseTheme,
+        );
+        _addDelta(result, scenarioCombos, scenario, altTheme, baseLocale,
+            baseTextScale, baseDevice, baseDirection);
+      }
+
+      if (axes.locales.length > 1) {
+        final altLocale = axes.locales.firstWhere(
+          (l) => l != baseLocale,
+          orElse: () => baseLocale,
+        );
+        final altDir = axes.directions.isEmpty
+            ? directionForLocale(altLocale)
+            : baseDirection;
+        _addDelta(result, scenarioCombos, scenario, baseTheme, altLocale,
+            baseTextScale, baseDevice, altDir);
+      }
+
+      if (axes.textScales.length > 1) {
+        // Pick the largest non-default scale
+        final altScale = axes.textScales
+            .where((s) => s != baseTextScale)
+            .fold<double>(baseTextScale, (a, b) => b > a ? b : a);
+        _addDelta(result, scenarioCombos, scenario, baseTheme, baseLocale,
+            altScale, baseDevice, baseDirection);
+      }
+
+      if (axes.devices.length > 1) {
+        final altDevice = axes.devices.firstWhere(
+          (d) => d.name != baseDevice.name,
+          orElse: () => baseDevice,
+        );
+        _addDelta(result, scenarioCombos, scenario, baseTheme, baseLocale,
+            baseTextScale, altDevice, baseDirection);
+      }
+
+      if (axes.directions.length > 1) {
+        final altDir = axes.directions.firstWhere(
+          (d) => d != baseDirection,
+          orElse: () => baseDirection,
+        );
+        _addDelta(result, scenarioCombos, scenario, baseTheme, baseLocale,
+            baseTextScale, baseDevice, altDir);
+      }
+    }
+
+    return result;
+  }
+
+  static void _addDelta(
+    List<MatrixCombination> result,
+    List<MatrixCombination> pool,
+    MatrixScenario scenario,
+    dynamic theme,
+    Locale locale,
+    double textScale,
+    dynamic device,
+    TextDirection direction,
+  ) {
+    final match = pool.where((c) =>
+        c.scenario.name == scenario.name &&
+        c.theme.name == (theme as dynamic).name &&
+        c.locale == locale &&
+        c.textScale == textScale &&
+        c.device.name == (device as dynamic).name &&
+        c.direction == direction);
+    if (match.isNotEmpty &&
+        !result.any((r) =>
+            r.scenario.name == match.first.scenario.name &&
+            r.theme.name == match.first.theme.name &&
+            r.locale == match.first.locale &&
+            r.textScale == match.first.textScale &&
+            r.device.name == match.first.device.name &&
+            r.direction == match.first.direction)) {
+      result.add(match.first);
+    }
+  }
+
+  /// Priority-based sampling: score each combination and take the top N.
+  ///
+  /// Scoring:
+  /// - +3 if dark theme AND textScale > 1.0
+  /// - +3 if RTL direction AND smallest device
+  /// - +2 if non-first locale AND non-first device
+  /// - +1 if dark theme alone
+  /// - +1 if non-default textScale alone
+  static List<MatrixCombination> _applyPriorityBased(
+    List<MatrixCombination> combinations,
+    MatrixAxes axes,
+    int? maxCombinations,
+  ) {
+    if (combinations.isEmpty) return combinations;
+
+    final firstLocale = axes.locales.first;
+    final firstDevice = axes.devices.first;
+
+    // Find the smallest device by area
+    final smallestDevice = axes.devices.reduce(
+      (a, b) =>
+          (a.logicalSize.width * a.logicalSize.height) <=
+                  (b.logicalSize.width * b.logicalSize.height)
+              ? a
+              : b,
+    );
+
+    int score(MatrixCombination c) {
+      var s = 0;
+      final isDark = c.theme.name == 'dark';
+      final isLargeText = c.textScale > 1.0;
+      final isRtl = c.direction == TextDirection.rtl;
+      final isSmallestDevice = c.device.name == smallestDevice.name;
+      final isNonFirstLocale = c.locale != firstLocale;
+      final isNonFirstDevice = c.device.name != firstDevice.name;
+
+      if (isDark && isLargeText) s += 3;
+      if (isRtl && isSmallestDevice) s += 3;
+      if (isNonFirstLocale && isNonFirstDevice) s += 2;
+      if (isDark) s += 1;
+      if (isLargeText) s += 1;
+      return s;
+    }
+
+    final scored = combinations.toList()
+      ..sort((a, b) => score(b).compareTo(score(a)));
+
+    if (maxCombinations != null && scored.length > maxCombinations) {
+      return scored.sublist(0, maxCombinations);
+    }
+
+    return scored;
   }
 }

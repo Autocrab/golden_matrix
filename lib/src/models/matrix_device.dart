@@ -57,6 +57,22 @@ class MatrixDevice {
     safeArea: EdgeInsets.only(top: 20),
   );
 
+  // Named aliases for real devices
+  static const iphoneSE = phoneSmall;
+  static const iphone15 = phoneMedium;
+  static const iphone15ProMax = phoneLarge;
+  static const galaxyS20 = androidSmall;
+  static const galaxyA51 = androidMedium;
+  static const ipadPortrait = tablet;
+
+  // Tablet landscape
+  static const tabletLandscape = MatrixDevice(
+    name: 'tabletLandscape',
+    logicalSize: Size(1024, 768),
+    pixelRatio: 2.0,
+    safeArea: EdgeInsets.only(top: 20),
+  );
+
   String get slug => name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '_');
 
   @override
