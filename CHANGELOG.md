@@ -1,3 +1,12 @@
+## 0.6.0
+
+- **Value equality** — `MatrixTheme`, `MatrixDevice`, `MatrixScenario` now use `==`/`hashCode` instead of name-string comparisons
+- **Input validation** — asserts on empty axes lists in `MatrixGenerator.generate()`
+- **Skipped result tracking** — combinations recorded as `skipped` when `skip: true`
+- **Centralized slugify** — single `slugify()` utility used across all models and report writer
+- **Runner refactoring** — `runMatrixTests` split into focused helpers (`resolveCombinations`, `groupByScenario`, `_executeGoldenTest`, etc.)
+- **108 tests** — 68 unit + 30 integration + 10 runner helper tests
+
 ## 0.5.0
 
 - **Overflow detection** — automatically captures `RenderFlex overflow` and layout errors during golden tests, reports them as warnings in JSON/HTML

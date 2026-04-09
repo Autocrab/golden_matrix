@@ -1,6 +1,6 @@
 name: golden_matrix
 description: "Matrix-based visual regression testing for Flutter. Declare axes (themes, locales, devices, text scales), get all combinations automatically with sampling, HTML reports, and overflow detection."
-version: 0.5.0
+version: 0.6.0
 homepage: https://github.com/Autocrab/golden_matrix
 repository: https://github.com/Autocrab/golden_matrix
 issue_tracker: https://github.com/Autocrab/golden_matrix/issues
