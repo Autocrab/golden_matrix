@@ -63,10 +63,8 @@ matrixGolden(
 
 ```yaml
 # pubspec.yaml
-dev_dependencies:
-  golden_matrix:
-    git:
-      url: https://github.com/Autocrab/golden_matrix.git
+dependencies:
+  golden_matrix: ^0.5.0
 ```
 
 ### 2. Set up font loading
