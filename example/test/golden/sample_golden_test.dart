@@ -198,4 +198,17 @@ void main() {
       devices: const [MatrixDevice.phoneSmall, MatrixDevice.phoneLarge],
     ),
   );
+
+  // ---------------------------------------------------------------------------
+  // 9. Tolerance demo — allow small pixel differences (0.05%)
+  // ---------------------------------------------------------------------------
+  matrixGolden(
+    'SampleButton_WithTolerance',
+    scenarios: [MatrixScenario('default', builder: () => const SampleButton(label: 'OK'))],
+    axes: MatrixAxes(
+      themes: const [MatrixTheme.light, MatrixTheme.dark],
+      devices: const [MatrixDevice.phoneSmall],
+    ),
+    tolerance: 0.05 / 100, // 0.05% pixel diff allowed
+  );
 }
