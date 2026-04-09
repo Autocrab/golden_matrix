@@ -2,9 +2,11 @@ import 'package:flutter/widgets.dart';
 
 import '../models/matrix_axes.dart';
 import '../models/matrix_combination.dart';
+import '../models/matrix_device.dart';
 import '../models/matrix_rule.dart';
 import '../models/matrix_sampling.dart';
 import '../models/matrix_scenario.dart';
+import '../models/matrix_theme.dart';
 import 'pairwise_generator.dart';
 
 /// Generates all combinations from scenarios and axes.
@@ -207,18 +209,18 @@ class MatrixGenerator {
     List<MatrixCombination> result,
     List<MatrixCombination> pool,
     MatrixScenario scenario,
-    dynamic theme,
+    MatrixTheme theme,
     Locale locale,
     double textScale,
-    dynamic device,
+    MatrixDevice device,
     TextDirection direction,
   ) {
     final match = pool.where((c) =>
         c.scenario.name == scenario.name &&
-        c.theme.name == (theme as dynamic).name &&
+        c.theme.name == theme.name &&
         c.locale == locale &&
         c.textScale == textScale &&
-        c.device.name == (device as dynamic).name &&
+        c.device.name == device.name &&
         c.direction == direction);
     if (match.isNotEmpty &&
         !result.any((r) =>
