@@ -10,10 +10,37 @@ import '../models/matrix_theme.dart';
 import 'pairwise_generator.dart';
 
 /// Generates all combinations from scenarios and axes.
+///
+/// [MatrixGenerator] is the pure-logic core of the package. It takes a
+/// list of [MatrixScenario]s and a [MatrixAxes] definition, then
+/// produces the list of [MatrixCombination]s that the test runner will
+/// render.
+///
+/// ## Pipeline
+///
+/// 1. **Full Cartesian product** — every scenario × theme × locale ×
+///    textScale × device × direction is enumerated.
+/// 2. **Exclude rules** — every [MatrixRule] of type
+///    [MatrixRuleType.exclude] drops matching combinations.
+/// 3. **IncludeOnly rules** — every [MatrixRule] of type
+///    [MatrixRuleType.includeOnly] keeps only matching combinations.
+/// 4. **Sampling** — the chosen [MatrixSampling] strategy reduces the
+///    remaining set ([MatrixSampling.full] is a no-op).
+///
+/// ## Direction inference
+///
+/// When `axes.directions` is empty, [TextDirection] is inferred per
+/// combination from the locale's language code: `ar`, `he`, `fa`, `ur`,
+/// `ps`, `ku`, and `yi` are mapped to [TextDirection.rtl]; everything
+/// else to [TextDirection.ltr]. Pass an explicit `directions` list on
+/// [MatrixAxes] to override this behavior.
 class MatrixGenerator {
   /// Generates a list of [MatrixCombination]s based on the given parameters.
   ///
-  /// Pipeline: full Cartesian → exclude rules → includeOnly rules → sampling.
+  /// Pipeline: full Cartesian → exclude rules → includeOnly rules →
+  /// sampling. When `axes.directions` is empty, text direction is
+  /// inferred from each locale (RTL for `ar`, `he`, `fa`, `ur`, `ps`,
+  /// `ku`, `yi`; LTR otherwise).
   static List<MatrixCombination> generate({
     required List<MatrixScenario> scenarios,
     required MatrixAxes axes,

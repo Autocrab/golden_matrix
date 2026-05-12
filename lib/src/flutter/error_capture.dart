@@ -5,6 +5,22 @@ import 'package:flutter/foundation.dart';
 /// Used internally by the test runner to detect RenderFlex overflows,
 /// layout failures, and other framework errors during golden tests.
 ///
+/// ## Recognized patterns
+///
+/// Messages matching any of the following substrings are captured as
+/// warnings rather than being forwarded to the original
+/// [FlutterError.onError] handler (which would fail the test):
+///
+///   * `RenderFlex overflowed` — Row/Column children exceed available space.
+///   * `RenderBox was not laid out` — a render object was painted
+///     without being laid out (usually a misuse of intrinsics).
+///   * `A RenderFlex overflowed by` — verbose variant emitted by some
+///     Flutter versions.
+///   * `overflowing by` / `OVERFLOWING` — additional overflow patterns.
+///
+/// Any error that does not match a known pattern is forwarded to the
+/// original handler so the test framework can surface it as a failure.
+///
 /// Usage:
 /// ```dart
 /// final capture = ErrorCapture()..start();

@@ -14,24 +14,90 @@ typedef MatrixAppBuilder = Widget Function(MatrixCombination combination);
 
 /// Creates a group of golden tests for full screens.
 ///
-/// Unlike [matrixGolden], the user provides their own app shell via
-/// [appBuilder], which receives the full [MatrixCombination] for
-/// configuring theme, locale, and state.
+/// Unlike [matrixGolden], the caller is responsible for providing the
+/// full app shell via [appBuilder]. The builder receives a fully
+/// configured [MatrixCombination] and must return a widget (typically a
+/// [MaterialApp]) wired with the appropriate theme, locale, navigation,
+/// and dependency-injection scopes.
 ///
-/// Set [report] to `false` to disable JSON/HTML report generation.
+/// ## When to use
 ///
-/// Example:
+/// Use [screenMatrixGolden] when:
+///   * The screen depends on a custom theme system (e.g. a brand-specific
+///     `MTheme`) that cannot be expressed with a vanilla [ThemeData].
+///   * The screen needs `Provider`, `Riverpod`, `GetIt`, or any other DI
+///     container wired at the app root.
+///   * The screen relies on a real router (`go_router`, `Navigator 2.0`)
+///     instead of being placed directly into `home:`.
+///   * You need to mock platform channels or HTTP clients at the app
+///     level.
+///
+/// For simple components that fit into a default [MaterialApp], prefer
+/// [matrixGolden] which handles the wrapping automatically.
+///
+/// ## Parameters
+///
+/// - [name] — Test group name. Also used in the golden file path to
+///   prevent collisions across screen tests.
+/// - [appBuilder] — Required builder that returns the full app widget
+///   for the given [MatrixCombination]. This is the key difference from
+///   [matrixGolden].
+/// - [axes] — Matrix dimensions. Ignored when [preset] supplies its own
+///   axes.
+/// - [preset] — Reusable [MatrixPreset]. See [MatrixPreset.screenSmoke].
+/// - [states] — Optional list of [MatrixScenario]s representing distinct
+///   screen states (e.g. `loading`, `empty`, `error`, `populated`). Each
+///   state is expanded across the matrix. Defaults to a single
+///   `'default'` scenario when omitted.
+/// - [sampling] — Strategy to reduce the matrix. See [MatrixSampling].
+/// - [maxCombinations] — Hard cap on combinations. Useful with
+///   [MatrixSampling.priorityBased].
+/// - [rules] — [MatrixRule]s applied after the Cartesian product to
+///   filter combinations.
+/// - [tags] — Flutter test tags applied to each generated test.
+/// - [fileNameBuilder] — Override the default golden file name.
+/// - [report] — When `true` (default), writes JSON/HTML report output.
+/// - [reportDir] — Optional directory for the generated report.
+/// - [skip] — When `true`, all generated tests are skipped.
+/// - [tolerance] — Optional pixel-difference tolerance for the matcher.
+/// - [printSummary] — When `true` (default), prints a textual summary
+///   line at the end of the run.
+///
+/// ## Example
+///
 /// ```dart
 /// screenMatrixGolden(
 ///   'TransferScreen',
-///   appBuilder: (combination) => MaterialApp(
-///     theme: combination.theme.resolve(),
-///     locale: combination.locale,
-///     home: TransferScreen(),
-///   ),
+///   states: [
+///     MatrixScenario('loading', builder: () => const SizedBox.shrink()),
+///     MatrixScenario('populated', builder: () => const SizedBox.shrink()),
+///   ],
+///   appBuilder: (combination) {
+///     final myTheme = combination.theme.isDark ? MTheme.dark() : MTheme.light();
+///     return ProviderScope(
+///       overrides: [
+///         transferRepoProvider.overrideWithValue(FakeTransferRepo()),
+///       ],
+///       child: MTheme(
+///         data: myTheme,
+///         child: MaterialApp.router(
+///           theme: combination.theme.resolve(),
+///           locale: combination.locale,
+///           localizationsDelegates: AppLocalizations.localizationsDelegates,
+///           routerConfig: testRouterFor(combination.scenario.name),
+///         ),
+///       ),
+///     );
+///   },
 ///   preset: MatrixPreset.screenSmoke,
 /// );
 /// ```
+///
+/// See also:
+///   * [matrixGolden] — component-level alternative that auto-wraps the
+///     widget in a [MaterialApp].
+///   * [MatrixAppBuilder] — the builder signature.
+///   * [MatrixPreset.screenSmoke] — a sensible default for screens.
 void screenMatrixGolden(
   String name, {
   required MatrixAppBuilder appBuilder,

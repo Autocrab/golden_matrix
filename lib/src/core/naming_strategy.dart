@@ -14,6 +14,13 @@ class NamingStrategy {
   ///
   /// The [testName] prevents collisions when two `matrixGolden` calls use
   /// scenarios with the same name. Pass the first argument of `matrixGolden` here.
+  ///
+  /// ## Example outputs
+  ///
+  ///   * `goldens/primary-button/default/dark_en_ltr_1x_phone-small.png`
+  ///   * `goldens/transfer-screen/loading/light_ar_rtl_1_3x_tablet.png`
+  ///   * `goldens/default/light_en_US_ltr_2x_iphone15.png`
+  ///     (when `testName` is omitted)
   static String goldenPath(MatrixCombination combination, {String? testName}) {
     final scenario = combination.scenario.slug;
     final theme = combination.theme.slug;

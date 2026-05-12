@@ -8,6 +8,37 @@ import '../core/slug.dart';
 /// flags, brand config, etc.) that can be accessed in builders via
 /// `combination.theme.data`.
 ///
+/// ## Using `data` for a custom theme system
+///
+/// If your app uses a non-Material theme system — for example a brand
+/// `MTheme` inherited widget — you can attach the resolved theme to
+/// each [MatrixTheme] via [data], then read it back inside your
+/// [screenMatrixGolden] `appBuilder`:
+///
+/// ```dart
+/// // 1. Declare themes that carry a custom MTheme alongside ThemeData.
+/// const themes = [
+///   MatrixTheme.custom('light', ThemeData.light(), data: MTheme.light),
+///   MatrixTheme.custom('dark',  ThemeData.dark(),  data: MTheme.dark),
+/// ];
+///
+/// // 2. Read combination.theme.data inside the appBuilder.
+/// screenMatrixGolden(
+///   'SettingsScreen',
+///   axes: const MatrixAxes(themes: themes),
+///   appBuilder: (combination) {
+///     final myTheme = combination.theme.data as MTheme;
+///     return MThemeScope(
+///       theme: myTheme,
+///       child: MaterialApp(
+///         theme: combination.theme.resolve(),
+///         home: const SettingsScreen(),
+///       ),
+///     );
+///   },
+/// );
+/// ```
+///
 /// Example with a custom theme system:
 /// ```dart
 /// axes: MatrixAxes(

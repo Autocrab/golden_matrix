@@ -3,6 +3,33 @@ import 'package:flutter/widgets.dart';
 import '../core/slug.dart';
 
 /// Represents a device configuration for matrix golden testing.
+///
+/// A device captures the logical viewport size, pixel ratio, and safe
+/// area insets used to render goldens. Several presets are provided as
+/// static constants, and named aliases match real devices.
+///
+/// ## Built-in presets
+///
+/// | Preset           | Logical size  | DPR    | Safe area (top/bottom) |
+/// |------------------|---------------|--------|------------------------|
+/// | `phoneSmall`     | 375 x 667     | 2.0    | 20 / 0                 |
+/// | `phoneMedium`    | 390 x 844     | 3.0    | 47 / 34                |
+/// | `phoneLarge`     | 414 x 896     | 3.0    | 44 / 34                |
+/// | `androidSmall`   | 360 x 800     | 4.0    | 0 / 0                  |
+/// | `androidMedium`  | 412 x 915     | 2.625  | 0 / 0                  |
+/// | `tablet`         | 768 x 1024    | 2.0    | 20 / 0                 |
+/// | `tabletLandscape`| 1024 x 768    | 2.0    | 20 / 0                 |
+///
+/// ## Named aliases
+///
+/// Use these for self-documenting tests when targeting a specific real
+/// device:
+///   * `iphoneSE` → [phoneSmall]
+///   * `iphone15` → [phoneMedium]
+///   * `iphone15ProMax` → [phoneLarge]
+///   * `galaxyS20` → [androidSmall]
+///   * `galaxyA51` → [androidMedium]
+///   * `ipadPortrait` → [tablet]
 class MatrixDevice {
   final String name;
   final Size logicalSize;
