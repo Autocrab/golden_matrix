@@ -1,3 +1,7 @@
+## 0.6.2
+
+- **Fix** — shorter description in pubspec.yaml (pub.dev recommends 60-180 characters)
+
 ## 0.6.1
 
 - **Fix** — use `dev_dependencies` in README examples (was incorrectly `dependencies`)
