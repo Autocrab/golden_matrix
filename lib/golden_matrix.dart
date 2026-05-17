@@ -8,6 +8,7 @@ export 'src/models/matrix_sampling.dart';
 export 'src/models/matrix_rule.dart';
 export 'src/models/matrix_result.dart';
 export 'src/models/matrix_preset.dart';
+export 'src/models/matrix_preview.dart';
 
 // Core
 export 'src/core/matrix_generator.dart';
@@ -23,4 +24,5 @@ export 'src/flutter/pump_helpers.dart';
 
 // API
 export 'src/api/matrix_golden.dart';
+export 'src/api/preview_matrix_golden.dart';
 export 'src/api/screen_matrix_golden.dart';

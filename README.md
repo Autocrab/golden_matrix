@@ -54,6 +54,7 @@ matrixGolden(
 - **Overflow detection** — captures `RenderFlex overflow` and layout errors as warnings in reports
 - **HTML reports** — self-contained HTML with thumbnails, scenario grouping, filters, dark mode
 - **Tolerance** — configurable pixel diff threshold for flaky-free CI
+- **Dry-run preview** — `previewMatrixGolden(...)` reports what the runner would do (counts, paths, collisions) without rendering anything
 - **Custom themes** — `MatrixTheme.data` for attaching arbitrary context (custom theme systems, brand config)
 - **7 device presets** — phoneSmall, phoneMedium, phoneLarge, androidSmall, androidMedium, tablet, tabletLandscape (+ named aliases)
 - **Font loading** — `loadAppFonts()` loads real fonts (Roboto + app fonts) instead of Ahem squares
@@ -66,7 +67,7 @@ matrixGolden(
 ```yaml
 # pubspec.yaml
 dev_dependencies:
-  golden_matrix: ^0.8.1
+  golden_matrix: ^0.9.1
 ```
 
 ### 2. Set up font loading
@@ -230,6 +231,39 @@ matrixGolden(
 );
 ```
 
+### Dry-run preview
+
+Inspect what a `matrixGolden` / `screenMatrixGolden` call **would do** — combination counts, sampled list, golden paths, collisions — without rendering widgets or writing files:
+
+```dart
+final preview = previewMatrixGolden(
+  name: 'PrimaryButton',
+  scenarios: [MatrixScenario('default', builder: () => const PrimaryButton())],
+  axes: MatrixAxes(
+    themes: [MatrixTheme.light, MatrixTheme.dark],
+    locales: [Locale('en'), Locale('ar')],
+  ),
+  sampling: MatrixSampling.pairwise,
+);
+
+print(preview);
+// PrimaryButton
+//   Scenarios: 1 (default)
+//   Raw combinations: 4
+//   After rules: 4
+//   After sampling (pairwise): 4
+//   Combinations:
+//     1. default | light ltr en 1.0x phoneSmall
+//        -> goldens/primarybutton/default/light_en_ltr_1x_phonesmall.png
+//     ...
+
+preview.afterSamplingCount;   // 4
+preview.goldenPaths;          // list of paths the runner would write
+preview.duplicatePaths;       // non-empty when scenarios collide on the same path
+```
+
+Use it to sanity-check `scenarioTags`, estimate CI cost before adding a new axis, or catch golden-path collisions before they silently overwrite each other.
+
 ### Custom Theme Data
 
 Attach arbitrary context to themes — custom theme systems, brand configs, feature flags:
@@ -294,14 +328,17 @@ See example reports and golden files in the [GitHub repository](https://github.c
 
 ```
 goldens/
-  default/
-    light_en_ltr_1x_phonesmall.png
-    dark_ar_rtl_2x_phonelarge.png
-  disabled/
-    light_en_ltr_1x_phonesmall.png
+  mybutton/
+    default/
+      light_en_ltr_1x_phonesmall.png
+      dark_ar_rtl_2x_phonelarge.png
+    disabled/
+      light_en_ltr_1x_phonesmall.png
 ```
 
-Naming: `goldens/<scenario>/<theme>_<locale>_<direction>_<textScale>_<device>.png`
+Naming: `goldens/<test>/<scenario>/<theme>_<locale>_<direction>_<textScale>_<device>.png`
+
+The `<test>` prefix prevents collisions when two `matrixGolden` calls use scenarios with the same name.
 
 ## Requirements
 

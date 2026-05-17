@@ -93,7 +93,11 @@ void runMatrixTests(
 
 // -- Config resolution --
 
-@visibleForTesting
+/// Resolves the final list of [MatrixCombination] for a given configuration.
+///
+/// Shared by the test runner and [previewMatrixGolden]. Applies preset
+/// defaults, scenario-tag filtering, exclude/includeOnly rules, the chosen
+/// sampling strategy, and the global `maxCombinations` cap.
 List<MatrixCombination> resolveCombinations({
   required List<MatrixScenario> scenarios,
   MatrixAxes? axes,

@@ -1,3 +1,7 @@
+## 0.9.1
+
+- **Dry-run preview** — new `previewMatrixGolden(...)` returns a `MatrixPreview` describing what the runner would do (combination counts before/after rules and sampling, golden paths, duplicate-path detection) without rendering widgets or writing files. Use it to sanity-check `scenarioTags`, estimate CI cost, or spot golden-path collisions before they overwrite each other.
+
 ## 0.9.0 — BREAKING
 
 - **Breaking: `tags` → `scenarioTags`.** The parameter was documented as Flutter test tags but actually filtered scenarios. Renamed for clarity. **Migration:** replace `tags:` with `scenarioTags:` at call sites.
