@@ -69,7 +69,7 @@ matrixGolden(
 ```yaml
 # pubspec.yaml
 dev_dependencies:
-  golden_matrix: ^0.12.0
+  golden_matrix: ^0.13.0
 ```
 
 ### 2. Set up font loading

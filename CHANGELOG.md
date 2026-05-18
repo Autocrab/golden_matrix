@@ -1,3 +1,12 @@
+## 0.13.0 — BREAKING (only if you used `tolerance:`)
+
+- **Fix: `tolerance:` was silently looking up goldens in the wrong directory.** The `_TolerantComparator` passed the delegate's `basedir` directly to `LocalFileComparator(Uri testFile)` — which interprets its argument as a test-file URI and applies `dirname()`, shifting the effective basedir one level up. As a result, tolerance-enabled goldens were generated and matched at a path one directory above where they should have been.
+- **Impact:** Tests using `tolerance:` will now look for goldens at the correct path. Pre-existing baselines on the shifted path will not be found → tests fail with `Could not be compared against non-existent file`.
+- **Migration:** For every `matrixGolden` / `screenMatrixGolden` call that uses `tolerance:`, either:
+  - Move existing golden files from the shifted location down one directory to the correct one, **or**
+  - Run `flutter test --update-goldens` once to regenerate baselines at the correct path. The pixel content is unchanged — only the file location.
+- **Bonus:** the example test suite (`example/test/golden/sample_golden_test.dart`) now applies `tolerance: 0.01 / 100` (0.01%) to every test, absorbing cross-macOS anti-aliasing noise and unblocking CI on `macos-latest`.
+
 ## 0.12.0
 
 Post-pump-state release. Three orthogonal additions that together unlock a huge class of previously impossible tests.

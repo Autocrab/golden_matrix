@@ -40,6 +40,7 @@ void main() {
       textScales: const [1.0, 2.0],
       devices: const [MatrixDevice.phoneSmall, MatrixDevice.phoneLarge],
     ),
+    tolerance: 0.01 / 100, // absorb cross-macOS AA noise on CI
   );
 
   // ---------------------------------------------------------------------------
@@ -59,6 +60,7 @@ void main() {
       ),
     ],
     preset: MatrixPreset.componentSmoke,
+    tolerance: 0.01 / 100,
   );
 
   // ---------------------------------------------------------------------------
@@ -85,6 +87,7 @@ void main() {
       themes: const [MatrixTheme.light, MatrixTheme.dark],
       devices: const [MatrixDevice.iphoneSE, MatrixDevice.galaxyA51],
     ),
+    tolerance: 0.01 / 100,
   );
 
   // ---------------------------------------------------------------------------
@@ -115,6 +118,7 @@ void main() {
       ),
     ],
     preset: MatrixPreset.componentFull,
+    tolerance: 0.01 / 100,
   );
 
   // ---------------------------------------------------------------------------
@@ -135,6 +139,7 @@ void main() {
       MatrixScenario('error', builder: () => const SizedBox.shrink()),
     ],
     preset: MatrixPreset.screenSmoke,
+    tolerance: 0.01 / 100,
   );
 
   // ---------------------------------------------------------------------------
@@ -167,6 +172,7 @@ void main() {
     ),
     sampling: MatrixSampling.priorityBased,
     maxCombinations: 8,
+    tolerance: 0.01 / 100,
   );
 
   // ---------------------------------------------------------------------------
@@ -185,6 +191,7 @@ void main() {
       // Don't test RTL with English — only Arabic is RTL
       MatrixRule.exclude((c) => c.locale.languageCode != 'ar' && c.direction == TextDirection.rtl),
     ],
+    tolerance: 0.01 / 100,
   );
 
   // ---------------------------------------------------------------------------
@@ -198,6 +205,7 @@ void main() {
       textScales: const [1.0, 2.0],
       devices: const [MatrixDevice.phoneSmall, MatrixDevice.phoneLarge],
     ),
+    tolerance: 0.01 / 100,
   );
 
   // ---------------------------------------------------------------------------
@@ -226,6 +234,7 @@ void main() {
       devices: [MatrixDevice.phoneSmall],
     ),
     freezeAnimations: true,
+    tolerance: 0.01 / 100,
   );
 
   // ---------------------------------------------------------------------------
@@ -242,5 +251,6 @@ void main() {
       devices: [MatrixDevice.phoneSmall],
     ),
     captureAfter: const Duration(milliseconds: 750),
+    tolerance: 0.01 / 100,
   );
 }

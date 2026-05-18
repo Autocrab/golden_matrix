@@ -343,10 +343,17 @@ String _testDescription(MatrixCombination c) {
 }
 
 /// A [LocalFileComparator] wrapper that allows a percentage of pixels to differ.
+///
+/// The base `LocalFileComparator(Uri testFile)` constructor expects a test
+/// file URI and derives `basedir` via `dirname(testFile)`. Passing
+/// `delegate.basedir` directly would shift the basedir one directory up
+/// (golden lookups would silently miss). We append a placeholder segment
+/// so `dirname` strips it and leaves the original basedir intact.
 class _TolerantComparator extends LocalFileComparator {
   final double _tolerance;
 
-  _TolerantComparator(LocalFileComparator delegate, this._tolerance) : super(delegate.basedir);
+  _TolerantComparator(LocalFileComparator delegate, this._tolerance)
+    : super(delegate.basedir.resolve('_golden_matrix_tolerance_anchor.dart'));
 
   @override
   Future<bool> compare(Uint8List imageBytes, Uri golden) async {
