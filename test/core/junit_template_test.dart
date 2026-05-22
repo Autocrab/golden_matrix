@@ -19,30 +19,33 @@ MatrixCombination _combo({
 }
 
 MatrixCombinationResult _passed(MatrixCombination c) => MatrixCombinationResult(
-      combination: c,
-      status: MatrixResultStatus.passed,
-      goldenPath: 'goldens/x/${c.scenario.name}/x.png',
-    );
+  combination: c,
+  status: MatrixResultStatus.passed,
+  goldenPath: 'goldens/x/${c.scenario.name}/x.png',
+);
 
 MatrixCombinationResult _failed(MatrixCombination c, String err) => MatrixCombinationResult(
-      combination: c,
-      status: MatrixResultStatus.failed,
-      goldenPath: 'goldens/x/${c.scenario.name}/x.png',
-      errorMessage: err,
-    );
+  combination: c,
+  status: MatrixResultStatus.failed,
+  goldenPath: 'goldens/x/${c.scenario.name}/x.png',
+  errorMessage: err,
+);
 
 MatrixCombinationResult _skipped(MatrixCombination c) => MatrixCombinationResult(
-      combination: c,
-      status: MatrixResultStatus.skipped,
-      goldenPath: 'goldens/x/${c.scenario.name}/x.png',
-    );
+  combination: c,
+  status: MatrixResultStatus.skipped,
+  goldenPath: 'goldens/x/${c.scenario.name}/x.png',
+);
 
 void main() {
   group('JunitTemplate.render', () {
     test('all passed → no failure/skipped elements, counts correct', () {
       final result = MatrixResult(
         name: 'matrixGolden: Foo',
-        results: [_passed(_combo()), _passed(_combo(theme: MatrixTheme.dark))],
+        results: [
+          _passed(_combo()),
+          _passed(_combo(theme: MatrixTheme.dark)),
+        ],
         duration: const Duration(milliseconds: 500),
       );
 
@@ -72,10 +75,7 @@ void main() {
     });
 
     test('skipped → <skipped/>', () {
-      final result = MatrixResult(
-        name: 'matrixGolden: Foo',
-        results: [_skipped(_combo())],
-      );
+      final result = MatrixResult(name: 'matrixGolden: Foo', results: [_skipped(_combo())]);
 
       final xml = JunitTemplate.render(result);
       expect(xml, contains('skipped="1"'));
