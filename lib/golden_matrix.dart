@@ -1,5 +1,6 @@
 // Models
 // API
+export 'src/api/component_matrix_golden.dart';
 export 'src/api/matrix_golden.dart';
 export 'src/api/matrix_test_runner.dart' show MatrixSetupCallback;
 export 'src/api/preview_matrix_golden.dart';

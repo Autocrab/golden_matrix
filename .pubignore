@@ -9,3 +9,4 @@ example/test/goldens/
 *.iml
 CLAUDE.md
 .github/
+tool/

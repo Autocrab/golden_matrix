@@ -35,6 +35,27 @@ class NamingStrategy {
     return 'goldens/$scenario/$file';
   }
 
+  /// Returns the golden file path for a `componentMatrixGolden` combination.
+  ///
+  /// Same shape as [goldenPath] but **drops the device segment** because
+  /// component mode renders at intrinsic widget size; the device axis is
+  /// not part of the visual signature.
+  ///
+  /// Format: `goldens/<test>/<scenario>/<theme>_<locale>_<dir>_<scale>.png`
+  static String componentGoldenPath(MatrixCombination combination, {String? testName}) {
+    final scenario = combination.scenario.slug;
+    final theme = combination.theme.slug;
+    final locale = _formatLocale(combination.locale);
+    final dir = combination.direction == TextDirection.ltr ? 'ltr' : 'rtl';
+    final scale = formatTextScale(combination.textScale);
+    final file = '${theme}_${locale}_${dir}_$scale.png';
+
+    if (testName != null) {
+      return 'goldens/${slugify(testName)}/$scenario/$file';
+    }
+    return 'goldens/$scenario/$file';
+  }
+
   /// Formats a text scale value for use in file names.
   ///
   /// - `1.0` → `1x`

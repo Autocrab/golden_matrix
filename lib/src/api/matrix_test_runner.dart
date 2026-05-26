@@ -173,8 +173,8 @@ List<MatrixCombination> resolveCombinations({
 
 /// Groups [combinations] by their scenario name, preserving order.
 ///
-/// Exposed for tests of the runner internals; not part of the public API.
-@visibleForTesting
+/// Used internally by `matrixGolden` / `screenMatrixGolden` /
+/// `componentMatrixGolden`; also covered by unit tests directly.
 Map<String, List<MatrixCombination>> groupByScenario(List<MatrixCombination> combinations) {
   final grouped = <String, List<MatrixCombination>>{};
   for (final c in combinations) {
@@ -396,7 +396,6 @@ Future<List<String>> _detectStaleGoldensSafe(
 /// Formats a human-readable summary of a [MatrixResult] for console output.
 ///
 /// Includes counts, duration, and a list of failed combinations.
-@visibleForTesting
 String formatSummary(MatrixResult result) {
   final buf = StringBuffer();
   buf.writeln(result.name);

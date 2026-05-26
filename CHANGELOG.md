@@ -1,3 +1,28 @@
+## 0.19.0
+
+- **`componentMatrixGolden` — new API for small widgets at their intrinsic size.** Sister function to `matrixGolden`/`screenMatrixGolden` for component-level testing (buttons, badges, chips, list tiles). Instead of rendering inside a full `Scaffold` and capturing the whole 375×667 viewport with the widget centered in 95% whitespace, the function keeps the `MaterialApp` context (so theme/fonts/icons/locale all work) but anchors the widget via `Align(widthFactor: 1, heightFactor: 1)` and places the `RepaintBoundary` directly around it. The resulting PNG is exactly widget-sized plus optional padding.
+
+  ```dart
+  componentMatrixGolden(
+    'ShadButton',
+    scenarios: [
+      MatrixScenario('primary',
+          builder: () => const ShadButton(child: Text('Click'))),
+      MatrixScenario('destructive',
+          builder: () => const ShadButton.destructive(child: Text('Delete'))),
+    ],
+    axes: const MatrixAxes(themes: [MatrixTheme.light, MatrixTheme.dark]),
+  );
+  ```
+
+  Configuration:
+  - `pixelRatio: double` (default `2.0`) — PNG resolution in physical pixels = widget logical size × this value.
+  - `padding: EdgeInsets` (default `EdgeInsets.all(8)`) — visual breathing room around the widget; pass `EdgeInsets.zero` for the tightest crop.
+
+  File naming drops the device segment: `goldens/<test>/<scenario>/<theme>_<locale>_<dir>_<scale>.png`. The `devices` field of `MatrixAxes` is ignored in component mode because intrinsic size does not depend on device geometry.
+
+  Limitations: widgets without an intrinsic size (e.g. plain `Container()` with no `width`/`height`) throw a layout error — wrap them in `SizedBox(width:..., height:...)`. Widgets that need an `Overlay` ancestor (Tooltip, `showDialog`, `Hero` animations across routes) still work because we keep the full `MaterialApp` context, but `Scaffold`-positioned widgets (AppBar, FAB) belong in `matrixGolden`.
+
 ## 0.18.1
 
 - **Stale-golden detection now runs even when reports are disabled.** Previously, setting `reportFormats: const {}` silently disabled stale detection too — projects that opted out of report files lost the regression check entirely. As of 0.18.1, stale paths print directly to the test console in that mode, so you always see scenario-level orphans like `goldens/dialog/old_scenario/*.png` regardless of report configuration.

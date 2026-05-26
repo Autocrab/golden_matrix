@@ -74,7 +74,7 @@ matrixGolden(
 ```yaml
 # pubspec.yaml
 dev_dependencies:
-  golden_matrix: ^0.18.1
+  golden_matrix: ^0.19.0
 ```
 
 ### 2. Set up font loading
@@ -171,6 +171,31 @@ screenMatrixGolden(
   preset: MatrixPreset.screenSmoke,
 );
 ```
+
+### componentMatrixGolden — intrinsic-size component testing (since 0.19.0)
+
+For small visual primitives — buttons, badges, chips, list tiles — where capturing a full 375×667 device viewport with the widget centered in 95% whitespace is wasteful. The function keeps the full `MaterialApp` context (theme, fonts, icons, locale, overlays) but anchors the widget at its **natural** size; the PNG is exactly widget-sized plus optional padding.
+
+```dart
+componentMatrixGolden(
+  'ShadButton',
+  scenarios: [
+    MatrixScenario('primary',
+        builder: () => const ShadButton(child: Text('Click'))),
+    MatrixScenario('destructive',
+        builder: () => const ShadButton.destructive(child: Text('Delete'))),
+  ],
+  axes: const MatrixAxes(themes: [MatrixTheme.light, MatrixTheme.dark]),
+);
+```
+
+File layout: `goldens/<test>/<scenario>/<theme>_<locale>_<dir>_<scale>.png` — no device segment since intrinsic size doesn't depend on device geometry. The `devices` field of `MatrixAxes` is ignored in component mode.
+
+Extra parameters:
+- `pixelRatio: double` (default `2.0`) — PNG physical pixels = widget logical size × this value
+- `padding: EdgeInsets` (default `EdgeInsets.all(8)`) — visual breathing room; pass `EdgeInsets.zero` for tightest crop
+
+Use [matrixGolden](#matrixgolden--component-testing) instead when the component needs to live inside a `Scaffold` (AppBar/FAB positioning) or [screenMatrixGolden](#screenmatrixgolden--screen-testing) for full-screen flows.
 
 ### Presets
 
