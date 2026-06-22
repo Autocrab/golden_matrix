@@ -37,6 +37,9 @@ jobs:
           sed -i -E 's/^  sdk:.*/  sdk: ">=2.17.0 <4.0.0"/' pubspec.yaml
           sed -i -E 's/^  lints:.*/  lints: any/' pubspec.yaml
           rm -f analysis_options.yaml
+          # `flutter pub get` auto-resolves example/, which pins its own
+          # sdk: ^3.9.2 — irrelevant to probing the library, so drop it.
+          rm -rf example
           echo "----- effective pubspec environment -----"
           grep -A3 '^environment:' pubspec.yaml
       - run: flutter --version
