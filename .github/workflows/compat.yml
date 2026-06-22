@@ -32,8 +32,9 @@ jobs:
           flutter-version: ${{ matrix.flutter }}
       - name: relax constraints + dev tooling for the probe
         run: |
+          # Only the 2-space-indented environment `sdk:`/`lints:` keys match;
+          # the 4-space `    sdk: flutter` deps and `  flutter:` key are untouched.
           sed -i -E 's/^  sdk:.*/  sdk: ">=2.17.0 <4.0.0"/' pubspec.yaml
-          sed -i -E 's/^  flutter:.*/  flutter: ">=1.17.0"/' pubspec.yaml
           sed -i -E 's/^  lints:.*/  lints: any/' pubspec.yaml
           rm -f analysis_options.yaml
           echo "----- effective pubspec environment -----"
