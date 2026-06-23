@@ -45,6 +45,7 @@ nav:
   - Reports: reports.md
   - CI integration: ci.md
   - Advanced: advanced.md
+  - Font namespacing: font-namespacing.md
   - Migration guide: migration.md
 
 markdown_extensions:

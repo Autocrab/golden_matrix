@@ -1,7 +1,144 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_matrix/src/flutter/font_loader.dart';
 
 void main() {
+  group('namespacedAlias', () {
+    test('prefixes a bare text family with the root package', () {
+      expect(namespacedAlias('BrandSans', 'ui_kit', isIcon: false), 'packages/ui_kit/BrandSans');
+    });
+
+    test('returns null for icon families', () {
+      expect(namespacedAlias('MaterialIcons', 'ui_kit', isIcon: true), isNull);
+    });
+
+    test('returns null for already-prefixed families', () {
+      expect(namespacedAlias('packages/other/Foo', 'ui_kit', isIcon: false), isNull);
+    });
+
+    test('returns null for overridable system fonts', () {
+      expect(namespacedAlias('Roboto', 'ui_kit', isIcon: false), isNull);
+    });
+
+    test('returns null when family is empty or root package is null/empty', () {
+      expect(namespacedAlias('', 'ui_kit', isIcon: false), isNull);
+      expect(namespacedAlias('BrandSans', null, isIcon: false), isNull);
+      expect(namespacedAlias('BrandSans', '', isIcon: false), isNull);
+    });
+  });
+
+  group('planFontRegistrations', () {
+    Map<String, dynamic> entry(String family, List<String> assets) => {
+          'family': family,
+          'fonts': assets.map((a) => {'asset': a}).toList(),
+        };
+
+    List<String> familiesOf(
+      Iterable<dynamic> manifest, {
+      bool textFonts = true,
+      bool iconFonts = true,
+      String? rootPackage,
+    }) =>
+        planFontRegistrations(
+          manifest,
+          textFonts: textFonts,
+          iconFonts: iconFonts,
+          rootPackage: rootPackage,
+        ).map((r) => r.family).toList();
+
+    test('bare text family gets both the bare name and the packages/<root> alias', () {
+      final manifest = [
+        entry('BrandSans', ['fonts/BrandSans-Medium.ttf']),
+      ];
+      final plan = planFontRegistrations(
+        manifest,
+        textFonts: true,
+        iconFonts: true,
+        rootPackage: 'ui_kit',
+      );
+      expect(plan.map((r) => r.family), ['BrandSans', 'packages/ui_kit/BrandSans']);
+      expect(plan.first.assets, ['fonts/BrandSans-Medium.ttf']);
+      expect(plan.last.assets, ['fonts/BrandSans-Medium.ttf']);
+    });
+
+    test('no alias without a root package', () {
+      final manifest = [
+        entry('BrandSans', ['fonts/BrandSans-Medium.ttf']),
+      ];
+      // rootPackage omitted → defaults to null.
+      expect(familiesOf(manifest), ['BrandSans']);
+    });
+
+    test('icon families are not aliased', () {
+      final manifest = [
+        entry('MaterialIcons', ['fonts/MaterialIcons-Regular.otf']),
+      ];
+      expect(familiesOf(manifest, rootPackage: 'ui_kit'), ['MaterialIcons']);
+    });
+
+    test('textFonts:false drops text families, iconFonts:false drops icons', () {
+      final manifest = [
+        entry('BrandSans', ['fonts/BrandSans.ttf']),
+        entry('MaterialIcons', ['fonts/MaterialIcons.otf']),
+      ];
+      expect(
+        familiesOf(manifest, iconFonts: false, rootPackage: 'ui_kit'),
+        ['BrandSans', 'packages/ui_kit/BrandSans'],
+      );
+      expect(familiesOf(manifest, textFonts: false, rootPackage: 'ui_kit'), ['MaterialIcons']);
+    });
+
+    test('already-prefixed dependency family is kept once, not re-aliased', () {
+      final manifest = [
+        entry('packages/ui_kit/BrandSans', ['packages/ui_kit/fonts/BrandSans.ttf']),
+      ];
+      expect(familiesOf(manifest, rootPackage: 'ui_kit'), ['packages/ui_kit/BrandSans']);
+    });
+
+    test('skips entries with an empty family and de-duplicates', () {
+      final manifest = [
+        <String, dynamic>{'fonts': <dynamic>[]}, // no family → empty → skipped
+        entry('BrandSans', ['fonts/BrandSans.ttf']),
+        entry('BrandSans', ['fonts/BrandSans.ttf']), // dup family
+      ];
+      expect(
+        familiesOf(manifest, rootPackage: 'ui_kit'),
+        ['BrandSans', 'packages/ui_kit/BrandSans'],
+      );
+    });
+  });
+
+  group('rootPackageName', () {
+    late Directory tmp;
+    setUp(() => tmp = Directory.systemTemp.createTempSync('rootpkg_'));
+    tearDown(() => tmp.deleteSync(recursive: true));
+
+    String write(String contents) {
+      final f = File('${tmp.path}/pubspec.yaml')..writeAsStringSync(contents);
+      return f.path;
+    }
+
+    test('reads the name key', () {
+      final path = write('name: ui_kit\nversion: 1.0.0\n');
+      expect(rootPackageName(pubspecPath: path), 'ui_kit');
+    });
+
+    test('handles a quoted name and ignores later keys', () {
+      final path = write('description: "name: not_this"\nname: "my_pkg"\n');
+      expect(rootPackageName(pubspecPath: path), 'my_pkg');
+    });
+
+    test('returns null when the file is missing', () {
+      expect(rootPackageName(pubspecPath: '${tmp.path}/nope.yaml'), isNull);
+    });
+
+    test('returns null when there is no name key', () {
+      final path = write('version: 1.0.0\n');
+      expect(rootPackageName(pubspecPath: path), isNull);
+    });
+  });
+
   group('derivedFontFamily', () {
     test('returns empty string when no family key', () {
       expect(derivedFontFamily(<String, dynamic>{}), '');

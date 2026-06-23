@@ -1,3 +1,17 @@
+## 1.1.1
+
+- **`loadAppFonts()` now resolves a package's own prefixed fonts in its self-test.**
+  A package that references its bundled fonts as `packages/<pkg>/<family>` (the
+  form required in consumer apps) previously rendered Ahem in its *own* test
+  suite: the generated `FontManifest.json` lists those families un-prefixed, so
+  the requested `packages/<pkg>/...` name never matched. `loadAppFonts()` now
+  reads the package name from `pubspec.yaml` and additionally registers each
+  bundled **text** family under its `packages/<pkg>/<family>` alias, so both
+  names resolve — no manual `FontLoader` workaround needed. Icon families are
+  not aliased; combine with `loadAppFonts(iconFonts: false)` to skip Material
+  icon loading. See the
+  [Font namespacing guide](https://mavoryl.github.io/golden_matrix/font-namespacing/).
+
 ## 1.1.0
 
 - **Typed scenarios — `MatrixScenario.typed<T>`.** Attach a

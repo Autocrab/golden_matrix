@@ -72,20 +72,22 @@ Future<void> loadAppFonts({bool textFonts = true, bool iconFonts = true}) async 
     (string) async => json.decode(string) as Iterable<dynamic>,
   );
 
+  // Decide what to register (which families, under which names, from which
+  // assets) as pure logic, then perform the FontLoader mechanics here.
+  final registrations = planFontRegistrations(
+    fontManifest,
+    textFonts: textFonts,
+    iconFonts: iconFonts,
+    rootPackage: rootPackageName(),
+  );
+
   final loadedFamilies = <String>{};
 
-  for (final dynamic font in fontManifest) {
-    final fontMap = font as Map<String, dynamic>;
-    final family = derivedFontFamily(fontMap);
-    final isIcon = isIconFamily(family);
-    if (isIcon && !iconFonts) continue;
-    if (!isIcon && !textFonts) continue;
-
-    loadedFamilies.add(family);
-    final fontLoader = FontLoader(family);
-    for (final dynamic fontType in fontMap['fonts'] as Iterable<dynamic>) {
-      final fontTypeMap = fontType as Map<String, dynamic>;
-      fontLoader.addFont(rootBundle.load(fontTypeMap['asset'] as String));
+  for (final reg in registrations) {
+    loadedFamilies.add(reg.family);
+    final fontLoader = FontLoader(reg.family);
+    for (final asset in reg.assets) {
+      fontLoader.addFont(rootBundle.load(asset));
     }
     await fontLoader.load();
   }
@@ -108,6 +110,73 @@ Future<void> loadAppFonts({bool textFonts = true, bool iconFonts = true}) async 
   if (iconFonts && !loadedFamilies.contains('MaterialIcons')) {
     await _loadMaterialIconsFromSdk();
   }
+}
+
+/// Pure planning step for [loadAppFonts]: turns the raw `FontManifest.json`
+/// entries into the list of `(family, assets)` registrations to perform,
+/// applying the [textFonts]/[iconFonts] filter, de-duplicating family names,
+/// and appending the `packages/<root>/<family>` self-test alias (see
+/// [namespacedAlias]) for bare text families.
+@visibleForTesting
+List<({String family, List<String> assets})> planFontRegistrations(
+  Iterable<dynamic> fontManifest, {
+  required bool textFonts,
+  required bool iconFonts,
+  String? rootPackage,
+}) {
+  final out = <({String family, List<String> assets})>[];
+  final seen = <String>{};
+
+  for (final dynamic font in fontManifest) {
+    final fontMap = font as Map<String, dynamic>;
+    final family = derivedFontFamily(fontMap);
+    if (family.isEmpty) continue;
+    final isIcon = isIconFamily(family);
+    if (isIcon && !iconFonts) continue;
+    if (!isIcon && !textFonts) continue;
+
+    final assets = <String>[
+      for (final dynamic fontType in fontMap['fonts'] as Iterable<dynamic>)
+        if ((fontType as Map<String, dynamic>)['asset'] is String) fontType['asset'] as String,
+    ];
+
+    if (seen.add(family)) out.add((family: family, assets: assets));
+
+    final alias = namespacedAlias(family, rootPackage, isIcon: isIcon);
+    if (alias != null && seen.add(alias)) out.add((family: alias, assets: assets));
+  }
+
+  return out;
+}
+
+/// Reads the root package name from a `pubspec.yaml` (the project under test,
+/// `pubspec.yaml` in the current working directory by default).
+///
+/// Returns `null` when the file is missing or has no parseable `name:` key —
+/// in which case [loadAppFonts] simply skips the namespaced-alias step.
+@visibleForTesting
+String? rootPackageName({String pubspecPath = 'pubspec.yaml'}) {
+  final file = File(pubspecPath);
+  if (!file.existsSync()) return null;
+  for (final line in file.readAsLinesSync()) {
+    final match = RegExp(r'''^name:\s*['"]?([A-Za-z_][A-Za-z0-9_]*)''').firstMatch(line);
+    if (match != null) return match.group(1);
+  }
+  return null;
+}
+
+/// The `packages/<root>/<family>` name a bare text [family] should *also* be
+/// registered under so that a package referencing its own fonts with that
+/// prefix resolves when it tests itself. Returns `null` when no alias applies:
+/// icon families, already-prefixed families, overridable system fonts, an
+/// empty family, or a missing [rootPackage].
+@visibleForTesting
+String? namespacedAlias(String family, String? rootPackage, {required bool isIcon}) {
+  if (isIcon) return null;
+  if (rootPackage == null || rootPackage.isEmpty) return null;
+  if (family.isEmpty || family.startsWith('packages/')) return null;
+  if (_overridableFonts.contains(family)) return null;
+  return 'packages/$rootPackage/$family';
 }
 
 /// Heuristic check for whether [family] looks like an icon font family.
